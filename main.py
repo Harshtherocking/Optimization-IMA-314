@@ -1,6 +1,7 @@
 import numpy as np
-from algorithms.base import Function
-from algorithms.first_order import GradientDecent
+from utils.base import Function
+from utils.first_order import GradientDecent
+from utils.functions import RosenBrock
 
 if __name__ == "__main__":
     f = lambda x : x[0]**2 + x[0]*x[1] + x[1]**2 
@@ -13,5 +14,9 @@ if __name__ == "__main__":
     x_0 = np.array([4,2])
     
     soln = myfunc.optimize(x_0, optim)
+
+    print(soln)
+
+    soln = RosenBrock.optimize(x_0, optim)
 
     print(soln)
