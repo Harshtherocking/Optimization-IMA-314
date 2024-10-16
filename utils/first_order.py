@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import ndarray
-from utils.base import Optim
+from base import Optim
 
 EPSILON = 0.001
 
