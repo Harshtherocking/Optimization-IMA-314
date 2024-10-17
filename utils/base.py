@@ -1,6 +1,8 @@
 import numpy as np
 from numpy import ndarray
 from abc import abstractmethod, ABC 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class Optim (ABC): 
     '''
@@ -18,19 +20,19 @@ class Function :
     grad : gradient function returning ndarray() obeject type
     '''
     def __init__ (self, func , grad_func ,  name : str = "myFunc" ) -> None :
-        self.func = func
-        self.grad_func = grad_func
-        self.name = name
+        self.__func = func
+        self.__grad_func = grad_func
+        self.__name = name
         return None
 
     def __call__ (self, x : ndarray) -> ndarray :  
-        return self.func(x)
+        return self.__func(x)
     
     def __repr__(self) -> str:
-        return self.name
+        return self.__name
 
     def grad (self, x : ndarray) -> ndarray : 
-        return self.grad_func(x)
+        return self.__grad_func(x)
 
     def grad_mod (self, x : ndarray) -> float : 
         l2_norm = np.sum(np.square(self.grad(x)))
@@ -38,3 +40,37 @@ class Function :
 
     def optimize (self, initial_val : ndarray, optim: Optim) -> ndarray : 
         return  optim.optimize(initial_val, self.__call__, self.grad, self.grad_mod)
+    
+    def plot (self) -> None : 
+        x = np.linspace(-2, 2, 100)
+        y = np.linspace(-1, 3, 100)
+        X, Y = np.meshgrid(x, y)
+
+        Z = np.array([self.__call__(np.array([xi, yi])) for xi, yi in zip(X.flatten(), Y.flatten())]).reshape(X.shape)
+
+        fig = plt.figure(figsize=(12, 8))
+        ax = fig.add_subplot(111, projection='3d')
+
+        surf = ax.plot_surface(X, Y, Z, cmap='viridis', rstride=1, cstride=1, linewidth=0, antialiased=False)
+
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title(self.__repr__)
+
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+        plt.show()
+
+
+if __name__ == "__main__" :
+    f = lambda x : x[0]**2 + x[1] **2
+    g = lambda x : np.array([2*x[0], 2*x[1]])
+
+    func = Function(f,g, "func")
+
+    x  = np.array([3,8])
+
+    print(func(x))
+    print(func.grad(x))
+    print(func)
+    print(func.grad_mod(x))
