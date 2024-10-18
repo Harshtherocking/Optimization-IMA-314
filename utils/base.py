@@ -41,9 +41,13 @@ class Function :
     def optimize (self, initial_val : ndarray, optim: Optim) -> ndarray : 
         return  optim.optimize(initial_val, self.__call__, self.grad, self.grad_mod)
     
-    def plot (self) -> None : 
-        x = np.linspace(-2, 2, 100)
-        y = np.linspace(-1, 3, 100)
+    def plot (self,
+              x_val : tuple[int,int] = (-5,5),
+              y_val : tuple[int,int] = (-5,5),
+              num_points : int = 100) -> None : 
+
+        x = np.linspace(x_val[0], x_val[1], num_points)
+        y = np.linspace(y_val[0], y_val[1], num_points)
         X, Y = np.meshgrid(x, y)
 
         Z = np.array([self.__call__(np.array([xi, yi])) for xi, yi in zip(X.flatten(), Y.flatten())]).reshape(X.shape)
@@ -56,7 +60,7 @@ class Function :
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
-        ax.set_title(self.__repr__)
+        ax.set_title(self.__repr__())
 
         fig.colorbar(surf, shrink=0.5, aspect=5)
         plt.show()
