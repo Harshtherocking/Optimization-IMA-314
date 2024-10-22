@@ -28,6 +28,7 @@ source virtualenv/bin/activate
 pip install -r requirement.txt
 ```
 
+## Example
 ```python
 # declare a funciton and gradient 
 f = lambda x : x[0] ** 2  +  x[0]*x[1]  + x[1] ** 2
