@@ -24,20 +24,23 @@ from utils.line_search import GoldenSearch
 if __name__ == "__main__":
     x = np.array([5,7])
 
-    # print(PiecewiseLinear.grad( np.array([1,1]) ))
-    # print(PiecewiseLinear.grad( np.array([-1,1]) ))
-    # print(PiecewiseLinear.grad( np.array([1,-1]) ))
-    # print(PiecewiseLinear.grad( np.array([-1,-1]) ))
-    # print(PiecewiseLinear.grad( np.array([0,1]) ))
-    # print(PiecewiseLinear.grad( np.array([1,0]) ))
-    # print(PiecewiseLinear.grad( np.array([-1,0]) ))
-    # print(PiecewiseLinear.grad( np.array([0,-1]) ))
-    # print(PiecewiseLinear.grad( np.array([0,0]) ))
 
-    # PiecewiseLinear.plot()
-
+    adam = Adam()
     sg = Subgradient()
-    print(PiecewiseLinear.optimize(x, optim =sg, is_plot = True))
+    f  = lambda x : x[0] ** 2 + x[0] * x[1] + x[1] ** 2
+    myfunc = Function(f)
+
+    print(PiecewiseLinear.optimize(x, optim= sg , is_plot= True))
+
+
+
+
+    # Rastrigin.plot([x])
+    # print(Rastrigin(x), Rastrigin.grad(x), Rastrigin.hessian(x), sep = "\n")
+    
+
+    # sg = Subgradient()
+    # print(PiecewiseLinear.optimize(x, optim =sg, is_plot = True))
 
 
     

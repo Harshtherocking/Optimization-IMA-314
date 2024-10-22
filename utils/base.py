@@ -4,12 +4,14 @@ from abc import abstractmethod, ABC
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+EPS = 1e-8
+
 class Optim (ABC): 
     '''
     Base class for optimizers
     '''
     @abstractmethod
-    def optimize (self, x : ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool) -> ndarray | tuple[ndarray,list[ndarray]]:
+    def optimize (self, x : ndarray, func_callback, grad_func_callback, hessian_func_callback, grad_mod_callback, is_plot : bool) -> ndarray | tuple[ndarray,list[ndarray]]:
         pass
 
 
@@ -19,9 +21,10 @@ class Function :
     func : function which should return : ndarray() object type
     grad : gradient function returning ndarray() obeject type
     '''
-    def __init__ (self, func , grad_func ,  name : str = "myFunc" ) -> None :
+    def __init__ (self, func , grad_func = None, hessian_func = None, name : str = "myFunc" ) -> None :
         self.__func = func
         self.__grad_func = grad_func
+        self.__hessian_func = hessian_func
         self.__name = name
         return None
 
@@ -31,15 +34,36 @@ class Function :
     def __repr__(self) -> str:
         return self.__name
 
-    def grad (self, x : ndarray) -> ndarray : 
-        return self.__grad_func(x)
+    def grad(self, x: np.ndarray) -> np.ndarray:
+        if self.__grad_func : 
+            return self.__grad_func(x)
+
+        _x, _y = x
+        df_dx = (self.__func([_x + EPS, _y]) - self.__func([_x - EPS, _y])) / (2 * EPS)
+        df_dy = (self.__func([_x, _y + EPS]) - self.__func([_x, _y - EPS])) / (2 * EPS)
+        return np.array([df_dx, df_dy])
+
+    def hessian(self, x: np.ndarray) -> np.ndarray:
+        if self.__hessian_func : 
+            return self.__hessian_func(x)
+
+        _x, _y = x
+        d2f_dx2 = (self.__func([_x + EPS, _y]) - 2 * self.__func([_x, _y]) + self.__func([_x - EPS, _y])) / (EPS ** 2)
+        d2f_dy2 = (self.__func([_x, _y + EPS]) - 2 * self.__func([_x, _y]) + self.__func([_x, _y - EPS])) / (EPS ** 2)
+        
+        d2f_dxdy = (self.__func([_x + EPS, _y + EPS]) - self.__func([_x + EPS, _y - EPS]) - 
+                     self.__func([_x - EPS, _y + EPS]) + self.__func([_x - EPS, _y - EPS])) / (4 * EPS ** 2)
+
+        hessian_matrix = np.array([[d2f_dx2, d2f_dxdy],
+                                    [d2f_dxdy, d2f_dy2]])
+        return hessian_matrix
 
     def grad_mod (self, x : ndarray) -> float : 
         l2_norm = np.sum(np.square(self.grad(x)))
         return np.sqrt(l2_norm)
 
     def optimize (self, initial_val : ndarray, optim: Optim, is_plot : bool = False) -> ndarray :
-        soln = optim.optimize(initial_val, self.__call__, self.grad, self.grad_mod, is_plot = is_plot) 
+        soln = optim.optimize(initial_val, self.__call__, self.grad, self.hessian, self.grad_mod, is_plot = is_plot) 
 
         if is_plot and isinstance(soln, tuple): 
             # plot the trajectory 
