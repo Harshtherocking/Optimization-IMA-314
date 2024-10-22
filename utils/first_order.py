@@ -2,7 +2,7 @@ import numpy as np
 from numpy import ndarray
 from utils.base import Optim, Function
 
-EPSILON = 0.001
+EPSILON = 0.0001
 
 class GradientDecent (Optim): 
     '''
@@ -17,7 +17,7 @@ class GradientDecent (Optim):
         self.alpha = 0.01
         return
 
-    def _next (self, x: ndarray, func_callback, grad_func_callback) -> ndarray: 
+    def _next (self, x: ndarray, func_callback, grad_func_callback) -> ndarray : 
 
         if isinstance(self.alpha_optim, Optim) : 
 
@@ -29,12 +29,18 @@ class GradientDecent (Optim):
         # print(f"Alpha : {self.alpha}")
         return x - self.alpha * grad_func_callback(x)
     
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback) -> ndarray: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+        plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
             x = self._next(x, func_callback, grad_func_callback)
 
+            if is_plot :
+                plot_points.append(x)
+                
         self._reset
+        if is_plot : 
+            return x, plot_points
         return x
 
 
@@ -65,13 +71,19 @@ class NesterovAcceleratedGradientDescent (Optim):
         return x - self.momentum
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback) -> ndarray: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.momentum = np.zeros(x.shape)
+        plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
             x = self._next(x, grad_func_callback)
 
+            if is_plot :
+                plot_points.append(x)
+
         self._reset
+        if is_plot : 
+            return x, plot_points
         return x
 
 
@@ -97,13 +109,19 @@ class Adagrad (Optim):
         return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_mod_callback(x)
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback) -> ndarray: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.sq_grad_acc = np.zeros(x.shape)
+        plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
             x = self._next(x, grad_func_callback)
 
+            if is_plot :
+                plot_points.append(x)
+
         self._reset
+        if is_plot : 
+            return x, plot_points
         return x
 
 
@@ -131,13 +149,19 @@ class RMSProp(Optim):
         return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_mod_callback(x)
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback) -> ndarray: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.sq_grad_acc = np.zeros(x.shape)
+        plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
             x = self._next(x, grad_func_callback)
 
+            if is_plot :
+                plot_points.append(x)
+
         self._reset
+        if is_plot : 
+            return x, plot_points
         return x
 
 
@@ -178,14 +202,20 @@ class Adam (Optim):
         return x - self.alpha / np.sqrt(second_order_corrected + EPSILON) * first_order_corrected
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback) -> ndarray: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.first_order_acc = np.zeros(x.shape)
         self.second_order_acc = np.zeros(x.shape)
+        plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
             x = self._next(x, grad_func_callback)
 
+            if is_plot :
+                plot_points.append(x)
+
         self._reset
+        if is_plot : 
+            return x, plot_points
         return x
 
 

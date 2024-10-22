@@ -28,7 +28,6 @@ Rastrigin = Function(
     name="rastrigin"
 )
 
-
 Ackley = Function(
     func=lambda xy: -A_ack * np.exp(-B_ack * np.sqrt((xy[0]**2 + xy[1]**2) / 2)) - 
                                        np.exp((np.cos(C_ack * xy[0]) + np.cos(C_ack * xy[1])) / 2) + 
@@ -43,3 +42,32 @@ Ackley = Function(
     name="ackley"
 )
 
+
+Bohachevsky = Function(
+    func=lambda xy: xy[0]**2 + 2 * xy[1]**2 - 0.3 * np.cos(3 * np.pi * xy[0]) - 0.4 * np.cos(4 * np.pi * xy[1]) + 0.7,
+    grad_func=lambda xy: np.array([
+        2 * xy[0] + 0.9 * np.sin(3 * np.pi * xy[0]),
+        4 * xy[1] + 0.8 * np.sin(4 * np.pi * xy[1])
+    ]),
+    name="bohachevsky"
+)
+
+
+Trid = Function(
+    func=lambda xy: (xy[0] - 1)**2 + (xy[1] - xy[0]**2)**2 + (xy[0] - 1) * (xy[1] - 1),
+    grad_func=lambda xy: np.array([
+        2 * (xy[0] - 1) + (xy[1] - 1),
+        2 * (xy[1] - xy[0]**2) * -2 * xy[0] + (xy[0] - 1)
+    ]),
+    name="trid"
+)
+
+
+RotatedHyperEllipsoid = Function(
+    func=lambda xy: (xy[0]**2 + xy[1]**2)**2,
+    grad_func=lambda xy: np.array([
+        4 * xy[0] * (xy[0]**2 + xy[1]**2),
+        4 * xy[1] * (xy[0]**2 + xy[1]**2)
+    ]),
+    name="rotated_hyper_ellipsoid"
+)
