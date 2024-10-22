@@ -20,7 +20,51 @@ To get started with the course materials and exercises, clone this repository:
 
 ```bash
 git clone https://github.com/Harshtherocking/Optimization-IMA-314/tree/main
+cd Optimization-IMA-314/
+
+python3 -m venv virtualenv
+
+source virtualenv/bin/activate
+pip install -r requirement.txt
 ```
+
+```python
+# declare a funciton and gradient 
+f = lambda x : x[0] ** 2  +  x[0]*x[1]  + x[1] ** 2
+g = lambda x : np.array (
+    [2*x[0] + x[1],
+     2*x[1] + x[0]]
+)
+```
+
+```python
+# pass into Funtion object
+sampleFunc = Function (f, g, name = "samplefunc")
+
+# plot the function
+sampleFunc.plot()
+```
+
+```python
+# get value for a specific point
+x = np.array([5,2])
+
+func_val = sampleFunc(x)
+grad_val = sampleFunc.grad(x)
+
+print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}")
+```
+
+```python
+# define optimization algorithms
+gs = GoldenSearch ()
+gd = GradientDecent (alpha = 0.01, alpha_optim = gs)
+
+# optimize and plot trajectory
+x = np.array([7,10])
+soln = sampleFunc.optimize (x, optim= gd, is_plot = True)
+```
+
 
 ## Contributing
 
