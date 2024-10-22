@@ -4,9 +4,9 @@ from utils.base import Optim, Function
 
 EPSILON = 0.0001
 
-class GradientDecent (Optim): 
+class GradientDescent (Optim): 
     '''
-    Gradient Decent - description
+    Gradient Descent - description
     '''
     def __init__ (self, alpha: float = 0.01, alpha_optim : None | Optim  = None) -> None: 
         self.alpha = alpha
@@ -269,7 +269,7 @@ if __name__ == "__main__" :
     func = Function(f,g, "func")
     x  = np.array([3,8])
 
-    gd = GradientDecent()
+    gd = GradientDescent()
 
     soln  = func.optimize(x, gd)
 

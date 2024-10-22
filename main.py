@@ -2,7 +2,7 @@ import numpy as np
 from utils.base import Function
 
 from utils.first_order import (
-        GradientDecent,
+        GradientDescent,
         NesterovAcceleratedGradientDescent,
         Adagrad,
         RMSProp,
