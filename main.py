@@ -1,22 +1,27 @@
 import numpy as np
 from utils.base import Function
-from utils.first_order import GradientDecent
-from utils.functions import RosenBrock
+
+from utils.first_order import (
+        GradientDecent,
+        NesterovAcceleratedGradientDescent,
+        Adagrad,
+        RMSProp,
+        Adam
+        ) 
+
+from utils.functions import (
+         Rastrigin,
+         RosenBrock,
+         Ackley,
+         Trid
+        )
+from utils.line_search import GoldenSearch
 
 if __name__ == "__main__":
-    f = lambda x : x[0]**2 + x[0]*x[1] + x[1]**2 
-    g = lambda x : np.array(
-            [2*x[0] + x[1], x[0] + 2 * x[1]]
-            )
+    x = np.array([5,7])
 
-    optim = GradientDecent(0.1)
-    myfunc = Function(f, g) 
-    x_0 = np.array([4,2])
-    
-    soln = myfunc.optimize(x_0, optim)
-
-    print(soln)
-
-    soln = RosenBrock.optimize(x_0, optim)
-
-    print(soln)
+    adam = Adam()
+    print(Rastrigin.optimize(x, optim=adam, is_plot= True))
+    print(Ackley.optimize(x, optim= adam, is_plot= True))
+    print(RosenBrock.optimize(x,optim=adam, is_plot= True))
+    print(Trid.optimize(x, optim = adam, is_plot= True))
