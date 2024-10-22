@@ -13,10 +13,9 @@ In this course, we will explore various optimization algorithms, including:
 - **RMSProp**: A modification of Adagrad that helps mitigate the rapid decay of the learning rate.
 - **Adam**: Combines the advantages of both Adagrad and RMSProp, using moments to enhance convergence. 
 
-This course will provide a comprehensive understanding of these algorithms and their applications in optimization problems.
-![Optimization GIF](http://gifgifs.com/animations/transportation/rockets-and-shuttles/Large_rocket.gif)  <!-- Replace with a relevant GIF URL -->
 
 ## Getting Started
+![Optimization GIF](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJubjE1MnV6amZvNTlmcTMxemRwZHNzOWJ1d3JvY3VmZHYyd3d0eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/eChf44Gyj2VrO/200.webp)  <!-- Replace with a relevant GIF URL -->
 
 To get started with the course materials and exercises, clone this repository:
 
