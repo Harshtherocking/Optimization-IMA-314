@@ -12,7 +12,7 @@ class GradientDecent (Optim):
         self.alpha = alpha
         self.alpha_optim = alpha_optim
         return 
-    
+
     def _reset (self) -> None : 
         self.alpha = 0.01
         return
@@ -28,7 +28,7 @@ class GradientDecent (Optim):
 
         # print(f"Alpha : {self.alpha}")
         return x - self.alpha * grad_func_callback(x)
-    
+
     def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         plot_points : list[ndarray] = [x]
 
@@ -37,7 +37,7 @@ class GradientDecent (Optim):
 
             if is_plot :
                 plot_points.append(x)
-                
+
         self._reset
         if is_plot : 
             return x, plot_points
@@ -54,7 +54,7 @@ class NesterovAcceleratedGradientDescent (Optim):
         self.momemtum_coff  = momemtum_coff
         self.momentum : ndarray | None = None;
         return
-    
+
     def _reset (self) -> None : 
         self.alpha = 0.01 
         self.momemtum_coff  = 0.75
@@ -95,7 +95,7 @@ class Adagrad (Optim):
         self.alpha = alpha 
         self.sq_grad_acc: ndarray | None = None;
         return
-    
+
     def _reset (self) -> None : 
         self.sq_grad_acc: ndarray | None = None;
         return
@@ -135,7 +135,7 @@ class RMSProp(Optim):
         self.beta = beta
         self.sq_grad_acc: ndarray | None = None;
         return
-    
+
     def _reset (self) -> None : 
         self.sq_grad_acc: ndarray | None = None;
         return
@@ -176,7 +176,7 @@ class Adam (Optim):
         self.first_order_acc : ndarray | None = None
         self.second_order_acc : ndarray | None = None
         return
-    
+
     def _reset (self) -> None : 
         self.first_order_acc : ndarray | None = None
         self.second_order_acc : ndarray | None = None
@@ -219,6 +219,49 @@ class Adam (Optim):
         return x
 
 
+class Subgradient (Optim): 
+    '''
+    Subgradient - description
+    '''
+    def __init__ (self, alpha: float = 0.01, alpha_optim : None | Optim  = None) -> None: 
+        self.alpha = alpha
+        self.f_best : float | None = None
+        self.K = 100
+        return 
+
+    def _reset (self) -> None : 
+        self.alpha = 0.01
+        self.K
+        return
+
+    def _next (self, x: ndarray, func_callback, grad_func_callback) -> ndarray : 
+        x_new = x - self.alpha * grad_func_callback(x)
+
+        if (func_callback(x_new) < self.f_best) : 
+            self.f_best = func_callback(x_new)
+            print(f"F_Best : {self.f_best}")
+            return x_new
+
+        self.K -= 1
+        return x
+
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+        plot_points : list[ndarray] = [x]
+        self.f_best = func_callback(x)
+
+        while (grad_mod_callback(x) > EPSILON and self.K > 0): 
+            x = self._next(x, func_callback, grad_func_callback)
+
+            if is_plot :
+                plot_points.append(x)
+
+        self._reset
+        if is_plot : 
+            return x, plot_points
+        return x
+
+
+
 if __name__ == "__main__" : 
     f = lambda x : x[0]**2 + x[1] **2
     g = lambda x : np.array([2*x[0], 2*x[1]])
@@ -229,5 +272,5 @@ if __name__ == "__main__" :
     gd = GradientDecent()
 
     soln  = func.optimize(x, gd)
-    
+
     print(soln)

@@ -1,5 +1,6 @@
 import numpy as np
 from utils.base import Function
+from random import randrange
 
 A = 1 
 B = 10
@@ -71,3 +72,25 @@ RotatedHyperEllipsoid = Function(
     ]),
     name="rotated_hyper_ellipsoid"
 )
+
+
+PiecewiseLinear = Function(
+        func = lambda x : abs(x[0]) + 2 * abs(x[1]),
+        grad_func= lambda x : np.array([1,2]) if x[0] > 0 and x[1] > 0 else (
+            np.array([-1,2]) if x[0] < 0 and x[1] > 0 else (
+                np.array([1,-2]) if x[0] > 0 and x[1] < 0 else (
+                    np.array([-1,-2]) if x[0] < 0 and x[1] < 0 else (
+                        np.array([randrange(-1,1), 2]) if x[0] == 0 and x[1] > 0 else (
+                            np.array([1, randrange(-2,2)]) if x[0] > 0 and x[1] == 0 else (
+                                np.array([-1, randrange(-2,2)]) if x[0] < 0 and x[1] == 0 else (
+                                    np.array([randrange(-1,1), -2]) if x[0] == x[1] < 0 else 
+                                        np.array([randrange(-1,1), randrange(-2,2)])
+                                    ) 
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+        name = "piecewise_linear"
+        )
