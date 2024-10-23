@@ -31,15 +31,9 @@ pip install -r requirement.txt
 
 ## Example
 ```python
-# declare a funciton and gradient 
+# declare a funciton 
 f = lambda x : x[0] ** 2  +  x[0]*x[1]  + x[1] ** 2
-g = lambda x : np.array (
-    [2*x[0] + x[1],
-     2*x[1] + x[0]]
-)
-```
 
-```python
 # pass into Funtion object
 sampleFunc = Function (f, g, name = "samplefunc")
 
@@ -53,8 +47,9 @@ x = np.array([5,2])
 
 func_val = sampleFunc(x)
 grad_val = sampleFunc.grad(x)
+hess_val = sampleFunc.hessian(x)
 
-print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}")
+print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}\nH(x) = {hess_val}")
 ```
 
 ```python
@@ -65,6 +60,7 @@ gd = GradientDescent (alpha = 0.01, alpha_optim = gs)
 # optimize and plot trajectory
 x = np.array([7,10])
 soln = sampleFunc.optimize (x, optim= gd, is_plot = True)
+print(f"Optimize x : {soln}")
 ```
 
 
