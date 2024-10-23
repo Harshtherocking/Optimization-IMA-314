@@ -17,35 +17,41 @@ from utils.functions import (
          Trid, 
          PiecewiseLinear
         )
+
+from utils.second_order import (
+        DampedNewton
+        )
+
 from utils.line_search import GoldenSearch
 
 
 
 if __name__ == "__main__":
-    x = np.array([5,7])
+    # declare a funciton 
+    f = lambda x : x[0] ** 2 + 0.5 * x[1] ** 2
 
-    adam = Adam()
+    # pass into Funtion object
+    sampleFunc = Function (f, name = "samplefunc")
 
-    sg = Subgradient()
-    f  = lambda x : x[0] ** 2 + x[0] * x[1] + x[1] ** 2
-    myfunc = Function(f)
+    # plot the function
+    sampleFunc.plot()
 
-    print(PiecewiseLinear.optimize(x, optim= sg , is_plot= True))
+    # get value for a specific point
+    x = np.array([5,2])
 
+    func_val = sampleFunc(x)
+    grad_val = sampleFunc.grad(x)
+    hess_val = sampleFunc.hessian(x)
 
-
-
-    # Rastrigin.plot([x])
-    # print(Rastrigin(x), Rastrigin.grad(x), Rastrigin.hessian(x), sep = "\n")
+    print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}\nH(x) = {hess_val}")
     
+    # define optimization algorithms
+    gs = GoldenSearch () 
+    gd = GradientDescent (alpha = 0.01, alpha_optim = gs)
 
-    # sg = Subgradient()
-    # print(PiecewiseLinear.optimize(x, optim =sg, is_plot = True))
+    # optimize and plot trajectory
+    x = np.array([7,10])
+    soln = sampleFunc.optimize (x, optim= gd, is_plot = True)
+    print(f"Optimize x : {soln}")
 
 
-    
-    # adam = Adam()
-    # print(Rastrigin.optimize(x, optim=adam, is_plot= True))
-    # print(Ackley.optimize(x, optim= adam, is_plot= True))
-    # print(RosenBrock.optimize(x,optim=adam, is_plot= True))
-    # print(Trid.optimize(x, optim = adam, is_plot= True))

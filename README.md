@@ -33,7 +33,7 @@ pip install -r requirement.txt
 Command :
 ```python
 # declare a funciton 
-f = lambda x : x[0] ** 2  +  x[0]*x[1]  + x[1] ** 2
+f = lambda x : x[0] ** 2 + 0.5 * x[1] ** 2
 
 # pass into Funtion object
 sampleFunc = Function (f, name = "samplefunc")
@@ -42,7 +42,8 @@ sampleFunc = Function (f, name = "samplefunc")
 sampleFunc.plot()
 ```
 
-Output :
+Output : 
+
 ![image](./src/Figure_1.png)
 
 Command : 
@@ -60,10 +61,10 @@ print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}\nH(x) = {hess_val}")
 Output : 
 ```console
 At [5 2]
-F(x) = 39
-G(x) = [11.99999993  9.00000003]
-H(x) = [[71.05427358  0.]
- [ 0. 0.]]
+F(x) = 27.0
+G(x) = [10.  2.]
+H(x) = [[2.0001778  0.]
+ [0. 0.99831254]]
 ```
 
 Command : 
@@ -80,8 +81,10 @@ print(f"Optimize x : {soln}")
 
 Output : 
 ```console
-Optimize x : [-2.40197597e-05  3.90572496e-05]
+Optimize x : [2.80677703e-05 3.93062445e-05]
 ```
+
+![image](./src/Figure_2.png)
 
 ## Contributing
 

@@ -15,6 +15,7 @@ class GradientDescent (Optim):
 
     def _reset (self) -> None : 
         self.alpha = 0.01
+        self.num_iter = 0
         return
 
     def _next (self, x: ndarray, func_callback, grad_func_callback) -> ndarray : 
@@ -33,6 +34,7 @@ class GradientDescent (Optim):
         plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
+            self.num_iter += 1
             x = self._next(x, func_callback, grad_func_callback)
 
             if is_plot :
@@ -59,6 +61,7 @@ class NesterovAcceleratedGradientDescent (Optim):
         self.alpha = 0.01 
         self.momemtum_coff  = 0.75
         self.momentum : ndarray | None = None;
+        self.num_iter = 0
         return
 
 
@@ -76,6 +79,7 @@ class NesterovAcceleratedGradientDescent (Optim):
         plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
+            self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
             if is_plot :
@@ -98,6 +102,7 @@ class Adagrad (Optim):
 
     def _reset (self) -> None : 
         self.sq_grad_acc: ndarray | None = None;
+        self.num_iter = 0
         return
 
 
@@ -114,6 +119,7 @@ class Adagrad (Optim):
         plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
+            self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
             if is_plot :
@@ -138,6 +144,7 @@ class RMSProp(Optim):
 
     def _reset (self) -> None : 
         self.sq_grad_acc: ndarray | None = None;
+        self.num_iter = 0
         return
 
 
@@ -154,6 +161,7 @@ class RMSProp(Optim):
         plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
+            self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
             if is_plot :
@@ -180,6 +188,7 @@ class Adam (Optim):
     def _reset (self) -> None : 
         self.first_order_acc : ndarray | None = None
         self.second_order_acc : ndarray | None = None
+        self.num_iter = 0
         return
 
 
@@ -208,6 +217,7 @@ class Adam (Optim):
         plot_points : list[ndarray] = [x]
 
         while (grad_mod_callback(x) > EPSILON): 
+            self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
             if is_plot :
@@ -231,7 +241,8 @@ class Subgradient (Optim):
 
     def _reset (self) -> None : 
         self.alpha = 0.01
-        self.K
+        self.K = 100
+        self.num_iter = 0
         return
 
     def _next (self, x: ndarray, func_callback, grad_func_callback) -> ndarray : 
@@ -249,6 +260,7 @@ class Subgradient (Optim):
         self.f_best = func_callback(x)
 
         while (grad_mod_callback(x) > EPSILON and self.K > 0): 
+            self.num_iter += 1
             x = self._next(x, func_callback, grad_func_callback)
 
             if is_plot :
