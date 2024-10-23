@@ -24,8 +24,8 @@ from utils.line_search import GoldenSearch
 if __name__ == "__main__":
     x = np.array([5,7])
 
-
     adam = Adam()
+
     sg = Subgradient()
     f  = lambda x : x[0] ** 2 + x[0] * x[1] + x[1] ** 2
     myfunc = Function(f)

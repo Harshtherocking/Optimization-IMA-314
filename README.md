@@ -30,17 +30,22 @@ pip install -r requirement.txt
 ```
 
 ## Example
+Command :
 ```python
 # declare a funciton 
 f = lambda x : x[0] ** 2  +  x[0]*x[1]  + x[1] ** 2
 
 # pass into Funtion object
-sampleFunc = Function (f, g, name = "samplefunc")
+sampleFunc = Function (f, name = "samplefunc")
 
 # plot the function
 sampleFunc.plot()
 ```
 
+Output :
+![image](./src/Figure_1.png)
+
+Command : 
 ```python
 # get value for a specific point
 x = np.array([5,2])
@@ -52,9 +57,19 @@ hess_val = sampleFunc.hessian(x)
 print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}\nH(x) = {hess_val}")
 ```
 
+Output : 
+```console
+At [5 2]
+F(x) = 39
+G(x) = [11.99999993  9.00000003]
+H(x) = [[71.05427358  0.]
+ [ 0. 0.]]
+```
+
+Command : 
 ```python
 # define optimization algorithms
-gs = GoldenSearch ()
+gs = GoldenSearch () 
 gd = GradientDescent (alpha = 0.01, alpha_optim = gs)
 
 # optimize and plot trajectory
@@ -63,6 +78,10 @@ soln = sampleFunc.optimize (x, optim= gd, is_plot = True)
 print(f"Optimize x : {soln}")
 ```
 
+Output : 
+```console
+Optimize x : [-2.40197597e-05  3.90572496e-05]
+```
 
 ## Contributing
 
