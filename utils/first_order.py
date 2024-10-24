@@ -30,10 +30,10 @@ class GradientDescent (Optim):
         # print(f"Alpha : {self.alpha}")
         return x - self.alpha * grad_func_callback(x)
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         plot_points : list[ndarray] = [x]
 
-        while (grad_mod_callback(x) > EPSILON): 
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 
             self.num_iter += 1
             x = self._next(x, func_callback, grad_func_callback)
 
@@ -74,11 +74,11 @@ class NesterovAcceleratedGradientDescent (Optim):
         return x - self.momentum
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.momentum = np.zeros(x.shape)
         plot_points : list[ndarray] = [x]
 
-        while (grad_mod_callback(x) > EPSILON): 
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 
             self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
@@ -114,11 +114,11 @@ class Adagrad (Optim):
         return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_mod_callback(x)
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback,hessian_func_callback, grad_mod_callback,  is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.sq_grad_acc = np.zeros(x.shape)
         plot_points : list[ndarray] = [x]
 
-        while (grad_mod_callback(x) > EPSILON): 
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 
             self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
@@ -156,11 +156,11 @@ class RMSProp(Optim):
         return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_mod_callback(x)
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback,hessian_func_callback, grad_mod_callback,  is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.sq_grad_acc = np.zeros(x.shape)
         plot_points : list[ndarray] = [x]
 
-        while (grad_mod_callback(x) > EPSILON): 
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 
             self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
@@ -211,12 +211,12 @@ class Adam (Optim):
         return x - self.alpha / np.sqrt(second_order_corrected + EPSILON) * first_order_corrected
 
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, grad_mod_callback,  is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         self.first_order_acc = np.zeros(x.shape)
         self.second_order_acc = np.zeros(x.shape)
         plot_points : list[ndarray] = [x]
 
-        while (grad_mod_callback(x) > EPSILON): 
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 
             self.num_iter += 1
             x = self._next(x, grad_func_callback)
 
@@ -255,11 +255,11 @@ class Subgradient (Optim):
         self.K -= 1
         return x
 
-    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, grad_mod_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         plot_points : list[ndarray] = [x]
         self.f_best = func_callback(x)
 
-        while (grad_mod_callback(x) > EPSILON and self.K > 0): 
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON and self.K > 0): 
             self.num_iter += 1
             x = self._next(x, func_callback, grad_func_callback)
 

@@ -19,7 +19,8 @@ from utils.functions import (
         )
 
 from utils.second_order import (
-        DampedNewton
+        NewtonMethod,
+        DFP
         )
 
 from utils.line_search import GoldenSearch
@@ -36,22 +37,15 @@ if __name__ == "__main__":
     # plot the function
     sampleFunc.plot()
 
-    # get value for a specific point
-    x = np.array([5,2])
-
-    func_val = sampleFunc(x)
-    grad_val = sampleFunc.grad(x)
-    hess_val = sampleFunc.hessian(x)
-
-    print(f"At {x}\nF(x) = {func_val}\nG(x) = {grad_val}\nH(x) = {hess_val}")
-    
     # define optimization algorithms
     gs = GoldenSearch () 
-    gd = GradientDescent (alpha = 0.01, alpha_optim = gs)
+    nm = NewtonMethod(alpha_optim= gs)
+    dfp = DFP(alpha_optim= gs)
 
     # optimize and plot trajectory
     x = np.array([7,10])
-    soln = sampleFunc.optimize (x, optim= gd, is_plot = True)
+    soln = sampleFunc.optimize (x, optim= dfp, is_plot = True)
+
     print(f"Optimize x : {soln}")
 
 

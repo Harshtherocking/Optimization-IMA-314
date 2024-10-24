@@ -13,7 +13,7 @@ class Optim (ABC):
     num_iter : int = 0
 
     @abstractmethod
-    def optimize (self, x : ndarray, func_callback, grad_func_callback, hessian_func_callback, grad_mod_callback, is_plot : bool) -> ndarray | tuple[ndarray,list[ndarray]]:
+    def optimize (self, x : ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool) -> ndarray | tuple[ndarray,list[ndarray]]:
         pass
 
 
@@ -60,12 +60,8 @@ class Function :
                                     [d2f_dxdy, d2f_dy2]])
         return hessian_matrix
 
-    def grad_mod (self, x : ndarray) -> float : 
-        l2_norm = np.sum(np.square(self.grad(x)))
-        return np.sqrt(l2_norm)
-
     def optimize (self, initial_val : ndarray, optim: Optim, is_plot : bool = False) -> ndarray :
-        soln = optim.optimize(initial_val, self.__call__, self.grad, self.hessian, self.grad_mod, is_plot = is_plot) 
+        soln = optim.optimize(initial_val, self.__call__, self.grad, self.hessian, is_plot = is_plot) 
 
         if is_plot and isinstance(soln, tuple): 
             # plot the trajectory 
@@ -128,4 +124,3 @@ if __name__ == "__main__" :
     print(func(x))
     print(func.grad(x))
     print(func)
-    print(func.grad_mod(x))
