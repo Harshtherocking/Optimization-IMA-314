@@ -34,9 +34,25 @@ class Function :
     def grad (self, x : ndarray) -> ndarray : 
         return self.__grad_func(x)
 
-    def grad_mod (self, x : ndarray) -> float : 
-        l2_norm = np.sum(np.square(self.grad(x)))
-        return np.sqrt(l2_norm)
+        _x, _y = x
+        df_dx = (self.__func(np.array([_x + EPS, _y])) - self.__func(np.array([_x - EPS, _y]))) / (2 * EPS)
+        df_dy = (self.__func(np.array([_x, _y + EPS])) - self.__func(np.array([_x, _y - EPS]))) / (2 * EPS)
+        return np.array([df_dx, df_dy])
+
+    def hessian(self, x: np.ndarray) -> np.ndarray:
+        if self.__hessian_func : 
+            return self.__hessian_func(x)
+
+        _x, _y = x
+        d2f_dx2 = (self.__func(np.array([_x + EPS, _y])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x - EPS, _y]))) / (EPS ** 2)
+        d2f_dy2 = (self.__func(np.array([_x, _y + EPS])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x, _y - EPS]))) / (EPS ** 2)
+        
+        d2f_dxdy = (self.__func(np.array([_x + EPS, _y + EPS])) - self.__func(np.array([_x + EPS, _y - EPS])) - 
+                     self.__func(np.array([_x - EPS, _y + EPS])) + self.__func(np.array([_x - EPS, _y - EPS]))) / (4 * EPS ** 2)
+
+        hessian_matrix = np.array([[d2f_dx2, d2f_dxdy],
+                                    [d2f_dxdy, d2f_dy2]])
+        return hessian_matrix
 
     def optimize (self, initial_val : ndarray, optim: Optim, is_plot : bool = False) -> ndarray :
         soln = optim.optimize(initial_val, self.__call__, self.grad, self.grad_mod, is_plot = is_plot) 

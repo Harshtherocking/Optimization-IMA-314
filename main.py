@@ -18,10 +18,26 @@ from utils.functions import (
 from utils.line_search import GoldenSearch
 
 if __name__ == "__main__":
-    x = np.array([5,7])
+    # declare a funciton 
+    f = lambda x : 0.5 * x.T @ np.array([[1,0],[0,2]]) @ x - x.T @ np.array([1,1]) + 7
 
-    adam = Adam()
-    print(Rastrigin.optimize(x, optim=adam, is_plot= True))
-    print(Ackley.optimize(x, optim= adam, is_plot= True))
-    print(RosenBrock.optimize(x,optim=adam, is_plot= True))
-    print(Trid.optimize(x, optim = adam, is_plot= True))
+    x = np.array([2,1])
+
+    # pass into Funtion object
+    sampleFunc = Function (f, name = "samplefunc")
+
+    # plot the function
+    sampleFunc.plot()
+
+    # define optimization algorithms
+    gs = GoldenSearch () 
+    nm = NewtonMethod(alpha_optim= gs)
+    dfp = DFP(alpha_optim= gs)
+    bfgs = BFGS(alpha_optim =gs)
+
+    # optimize and plot trajectory
+    soln = sampleFunc.optimize (x, optim= dfp, is_plot = True)
+
+    print(f"Optimize x : {soln}")
+
+
