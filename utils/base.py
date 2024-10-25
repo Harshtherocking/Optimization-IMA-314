@@ -124,3 +124,25 @@ if __name__ == "__main__" :
     print(func(x))
     print(func.grad(x))
     print(func)
+
+
+
+class Algo (): 
+    '''
+    Base class for algorithms
+    '''
+    @abstractmethod
+    def __init__ (self, optim : Optim, *args, **kwargs) -> None : 
+        pass
+
+    @abstractmethod
+    def train (self, X_train : ndarray, Y_train : ndarray, epochs : int = 1, is_plot : bool = False) -> None :
+        pass
+
+    @abstractmethod
+    def test (self, X_test : ndarray, Y_test : ndarray, is_plot : bool) -> None : 
+        pass
+
+    @abstractmethod
+    def __call__ (self, X : ndarray, is_plot : bool = False) -> ndarray : 
+        pass

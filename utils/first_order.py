@@ -65,11 +65,11 @@ class NesterovAcceleratedGradientDescent (Optim):
         return
 
 
-    def _next (self, x : ndarray, grad_mod_callback) -> ndarray :
+    def _next (self, x : ndarray, grad_func_callback) -> ndarray :
         assert (isinstance(self.momentum, ndarray)), "initial momentum not defined"
 
         x_look_ahead = x - self.momemtum_coff * self.momentum
-        self.momentum = self.momemtum_coff * self.momentum  + self.alpha * grad_mod_callback(x_look_ahead)
+        self.momentum = self.momemtum_coff * self.momentum  + self.alpha * grad_func_callback(x_look_ahead)
 
         return x - self.momentum
 
@@ -106,12 +106,12 @@ class Adagrad (Optim):
         return
 
 
-    def _next (self, x : ndarray, grad_mod_callback) -> ndarray :
+    def _next (self, x : ndarray, grad_func_callback) -> ndarray :
         assert (isinstance(self.sq_grad_acc, ndarray)), "initial square gradient accumulation not defined"
-        self.sq_grad_acc += np.square(grad_mod_callback(x))
+        self.sq_grad_acc += np.square(grad_func_callback(x))
 
         assert (isinstance(self.sq_grad_acc, ndarray)), "problem in accumulation"
-        return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_mod_callback(x)
+        return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_func_callback(x)
 
 
     def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
@@ -148,12 +148,12 @@ class RMSProp(Optim):
         return
 
 
-    def _next (self, x : ndarray, grad_mod_callback) -> ndarray :
+    def _next (self, x : ndarray, grad_func_callback) -> ndarray :
         assert (isinstance(self.sq_grad_acc, ndarray)), "initial square gradient accumulation not defined"
-        self.sq_grad_acc = self.beta * self.sq_grad_acc + (1 - self.beta) * np.square(grad_mod_callback(x))
+        self.sq_grad_acc = self.beta * self.sq_grad_acc + (1 - self.beta) * np.square(grad_func_callback(x))
 
         assert (isinstance(self.sq_grad_acc, ndarray)), "problem in accumulation"
-        return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_mod_callback(x)
+        return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_func_callback(x)
 
 
     def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
@@ -192,12 +192,12 @@ class Adam (Optim):
         return
 
 
-    def _next (self, x : ndarray, grad_mod_callback) -> ndarray :
+    def _next (self, x : ndarray, grad_func_callback) -> ndarray :
         assert (isinstance(self.first_order_acc, ndarray)), "initial first order accumulation not defined"
         assert (isinstance(self.second_order_acc, ndarray)), "initial second order accumulation not defined"
 
-        self.first_order_acc = self.beta_1 * self.first_order_acc + (1 - self.beta_1) * grad_mod_callback(x)
-        self.second_order_acc = self.beta_2 * self.second_order_acc + (1 - self.beta_2) * np.square(grad_mod_callback(x)) 
+        self.first_order_acc = self.beta_1 * self.first_order_acc + (1 - self.beta_1) * grad_func_callback(x)
+        self.second_order_acc = self.beta_2 * self.second_order_acc + (1 - self.beta_2) * np.square(grad_func_callback(x)) 
 
         assert (isinstance(self.first_order_acc, ndarray)), "problem in first order accumulation"
         assert (isinstance(self.second_order_acc, ndarray)), "problem in second order accumulation"
