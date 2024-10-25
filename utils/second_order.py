@@ -110,6 +110,13 @@ class DFP (Optim):
         del_x = self.alpha * direction
         del_grad = grad_func_callback(x_new) - grad_func_callback(x)
         
+        # resizing del_x and del_grad to encounter transposing issue
+        assert (isinstance(del_x, ndarray))
+        assert (isinstance(del_grad, ndarray))
+
+        del_x.resize((len(del_x), 1))
+        del_grad.resize((len(del_grad), 1))
+
         # calculating hessian for next iteration
         self.hessian_k = self.hessian_k + (del_x @ del_x.T) / (del_x.T @ del_grad) - ((self.hessian_k @ del_grad) @ (self.hessian_k @ del_grad).T) / del_grad.T @ self.hessian_k @ del_grad 
 
@@ -176,9 +183,21 @@ class BFGS (Optim):
 
         del_x = self.alpha * direction
         del_grad = grad_func_callback(x_new) - grad_func_callback(x)
+
+        # resizing del_x and del_grad to encounter transposing issue
+        assert (isinstance(del_x, ndarray))
+        assert (isinstance(del_grad, ndarray))
+
+        del_x.resize((len(del_x), 1))
+        del_grad.resize((len(del_grad), 1))
+
         
-        # calculating hessian for next iteration
-        self.hessian_k = inv(inv(self.hessian_k) + (del_grad @ del_grad.T) / (del_grad.T @ del_x) - ((inv(self.hessian_k) @ del_x) @ (inv(self.hessian_k) @ del_x).T) / del_x.T @ inv(self.hessian_k) @ del_x )
+        self.hessian_k = inv(
+                inv(self.hessian_k) 
+                 + (del_grad @ del_grad.T) / (del_grad.T @ del_x) 
+                 - ( inv(self.hessian_k) @ del_x @ del_x.T @ inv(self.hessian_k) )  
+                 / (del_x.T @ inv(self.hessian_k) @ del_x)
+                )
 
         return x_new
 
