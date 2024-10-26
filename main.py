@@ -6,29 +6,24 @@ from utils.first_order import GradientDescent, Adam, Adagrad
 
 from utils.functions import RosenBrock
 
-from utils.second_order import NewtonMethod
+from utils.second_order import NewtonMethod, BFGS, DFP
 
-from utils.line_search import GoldenSearch
-
+from utils.line_search import GoldenSearch, BacktrackingLineSearch
 
 if __name__ == "__main__":
-    X = np.array([
-        [1,2],
-        [2,3],
-        [3,4],
-        ])
+    X = np.array(
+        [
+            [1],
+            [2],
+            [3],
+        ]
+    )
 
-    Y = np.array([3,5,7])
+    Y = np.array([3, 5, 7])
 
-    gd = GradientDescent(alpha_optim = GoldenSearch())
+    gd = GradientDescent(alpha_optim=BacktrackingLineSearch(isArmijo=True))
 
-    lr = LinearRegression(optim = gd)
-    lr.train(X_train= X, Y_train= Y, is_plot= True)
+    lr = LinearRegression(optim=BFGS())
+    lr.train(X_train=X, Y_train=Y, is_plot=True)
 
-    x = np.array([
-        [1],
-        [4]
-        ])
-
-
-
+    x = np.array([[1], [4]])

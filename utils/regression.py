@@ -53,7 +53,7 @@ class LinearRegression (Algo) :
                     func = lambda bw : 1/(2*Y_train.shape[0])  * np.square(np.linalg.norm(self.__Error_func(X_train_aug, Y_train, bw))), 
                     grad_func = lambda bw : 1/(Y_train.shape[0]) * X_train_aug.T @ self.__Error_func(X_train_aug, Y_train, bw),
                     hessian_func= lambda bw : 1/(Y_train.shape[0]) * X_train_aug.T  @ X_train_aug,
-                    name = "mean_square_error"
+                    name = "Loss Function: Mean Square Error"
                     )
 
             # # optimize loss
