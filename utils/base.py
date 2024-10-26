@@ -4,12 +4,16 @@ from abc import abstractmethod, ABC
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+EPS = 1e-6
+
 class Optim (ABC): 
     '''
     Base class for optimizers
     '''
+    num_iter : int = 0
+
     @abstractmethod
-    def optimize (self, x : ndarray, func_callback, grad_func_callback, grad_mod_callback, is_plot : bool) -> ndarray | tuple[ndarray,list[ndarray]]:
+    def optimize (self, x : ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool) -> ndarray | tuple[ndarray,list[ndarray]]:
         pass
 
 
@@ -17,11 +21,16 @@ class Function :
     '''
     Base class for functions
     func : function which should return : ndarray() object type
-    grad : gradient function returning ndarray() obeject type
+
+    Gradient and Hessian calculation are implemeneted for 2-D inputs. 
+    For N dimension input, also provide  :
+        grad_func : gradient function returning : ndarray() object type
+        hessian_func : hessian function returning : ndarray() object type
     '''
-    def __init__ (self, func , grad_func ,  name : str = "myFunc" ) -> None :
+    def __init__ (self, func , grad_func = None, hessian_func = None, name : str = "myFunc" ) -> None :
         self.__func = func
         self.__grad_func = grad_func
+        self.__hessian_func = hessian_func
         self.__name = name
         return None
 
@@ -31,8 +40,9 @@ class Function :
     def __repr__(self) -> str:
         return self.__name
 
-    def grad (self, x : ndarray) -> ndarray : 
-        return self.__grad_func(x)
+    def grad(self, x: np.ndarray) -> np.ndarray:
+        if self.__grad_func : 
+            return self.__grad_func(x)
 
         _x, _y = x
         df_dx = (self.__func(np.array([_x + EPS, _y])) - self.__func(np.array([_x - EPS, _y]))) / (2 * EPS)
@@ -46,16 +56,16 @@ class Function :
         _x, _y = x
         d2f_dx2 = (self.__func(np.array([_x + EPS, _y])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x - EPS, _y]))) / (EPS ** 2)
         d2f_dy2 = (self.__func(np.array([_x, _y + EPS])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x, _y - EPS]))) / (EPS ** 2)
-        
+
         d2f_dxdy = (self.__func(np.array([_x + EPS, _y + EPS])) - self.__func(np.array([_x + EPS, _y - EPS])) - 
-                     self.__func(np.array([_x - EPS, _y + EPS])) + self.__func(np.array([_x - EPS, _y - EPS]))) / (4 * EPS ** 2)
+                    self.__func(np.array([_x - EPS, _y + EPS])) + self.__func(np.array([_x - EPS, _y - EPS]))) / (4 * EPS ** 2)
 
         hessian_matrix = np.array([[d2f_dx2, d2f_dxdy],
-                                    [d2f_dxdy, d2f_dy2]])
+                                   [d2f_dxdy, d2f_dy2]])
         return hessian_matrix
 
     def optimize (self, initial_val : ndarray, optim: Optim, is_plot : bool = False) -> ndarray :
-        soln = optim.optimize(initial_val, self.__call__, self.grad, self.grad_mod, is_plot = is_plot) 
+        soln = optim.optimize(initial_val, self.__call__, self.grad, self.hessian, is_plot = is_plot) 
 
         if is_plot and isinstance(soln, tuple): 
             # plot the trajectory 
@@ -68,17 +78,17 @@ class Function :
 
     def plot (self,
               points : list[ndarray] | ndarray | None  = None,
-              x_val : tuple[int,int] = (-10,10),
-              y_val : tuple[int,int] = (-10,10),
+              x_range: tuple[int,int] = (-10,10),
+              y_range : tuple[int,int] = (-10,10),
               num_points : int = 100) -> None : 
 
         if points :
             points_array = np.array(points)
-            x_val = (np.min(points_array[:, 0]) - 1, np.max(points_array[:, 0]) + 1)
-            y_val = (np.min(points_array[:, 1]) - 1, np.max(points_array[:, 1]) + 1)
+            x_range = (np.min(points_array[:, 0]) - 1, np.max(points_array[:, 0]) + 1)
+            y_range = (np.min(points_array[:, 1]) - 1, np.max(points_array[:, 1]) + 1)
 
-        x = np.linspace(x_val[0], x_val[1], num_points)
-        y = np.linspace(y_val[0], y_val[1], num_points)
+        x = np.linspace(x_range[0], x_range[1], num_points)
+        y = np.linspace(y_range[0], y_range[1], num_points)
         X, Y = np.meshgrid(x, y)
 
         Z = np.array([self.__call__(np.array([xi, yi])) for xi, yi in zip(X.flatten(), Y.flatten())]).reshape(X.shape)
@@ -91,7 +101,7 @@ class Function :
 
         # scatter plot the trajectory of points 
         if points is not None and len(points) > 0:
-                # Extract x, y from each point and calculate Z values
+            # Extract x, y from each point and calculate Z values
                 x_points = np.array([p[0] for p in points])  # X values
                 y_points = np.array([p[1] for p in points])  # Y values
                 z_points = np.array([self.__call__(p) for p in points])  # Z values
@@ -118,4 +128,24 @@ if __name__ == "__main__" :
     print(func(x))
     print(func.grad(x))
     print(func)
-    print(func.grad_mod(x))
+
+
+class Algo (): 
+    '''
+    Base class for algorithms
+    '''
+    @abstractmethod
+    def __init__ (self, optim : Optim, *args, **kwargs) -> None : 
+        pass
+
+    @abstractmethod
+    def train (self, X_train : ndarray, Y_train : ndarray, epochs : int = 1, is_plot : bool = False) -> None :
+        pass
+
+    @abstractmethod
+    def test (self, X_test : ndarray, Y_test : ndarray, is_plot : bool) -> None : 
+        pass
+
+    @abstractmethod
+    def __call__ (self, X : ndarray, is_plot : bool = False) -> ndarray : 
+        pass

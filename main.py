@@ -1,43 +1,34 @@
 import numpy as np
 from utils.base import Function
+from utils.regression import LinearRegression
 
-from utils.first_order import (
-        GradientDecent,
-        NesterovAcceleratedGradientDescent,
-        Adagrad,
-        RMSProp,
-        Adam
-        ) 
+from utils.first_order import GradientDescent, Adam, Adagrad
 
-from utils.functions import (
-         Rastrigin,
-         RosenBrock,
-         Ackley,
-         Trid
-        )
+from utils.functions import RosenBrock
+
+from utils.second_order import NewtonMethod
+
 from utils.line_search import GoldenSearch
 
+
 if __name__ == "__main__":
-    # declare a funciton 
-    f = lambda x : 0.5 * x.T @ np.array([[1,0],[0,2]]) @ x - x.T @ np.array([1,1]) + 7
+    X = np.array([
+        [1,2],
+        [2,3],
+        [3,4],
+        ])
 
-    x = np.array([2,1])
+    Y = np.array([3,5,7])
 
-    # pass into Funtion object
-    sampleFunc = Function (f, name = "samplefunc")
+    gd = GradientDescent(alpha_optim = GoldenSearch())
 
-    # plot the function
-    sampleFunc.plot()
+    lr = LinearRegression(optim = gd)
+    lr.train(X_train= X, Y_train= Y, is_plot= True)
 
-    # define optimization algorithms
-    gs = GoldenSearch () 
-    nm = NewtonMethod(alpha_optim= gs)
-    dfp = DFP(alpha_optim= gs)
-    bfgs = BFGS(alpha_optim =gs)
+    x = np.array([
+        [1],
+        [4]
+        ])
 
-    # optimize and plot trajectory
-    soln = sampleFunc.optimize (x, optim= dfp, is_plot = True)
-
-    print(f"Optimize x : {soln}")
 
 
