@@ -1,10 +1,12 @@
 import numpy as np
+from numpy import ndarray
+
 from utils.base import Optim
 
 EPS = 0.3
 
 class GoldenSearch(Optim):
-    def __init__(self, phi: float = 0.618) -> None:
+    def __init__(self, phi: float = 0.68103) -> None:
         self.phi = phi 
 
     def _first(self, a, b) -> tuple[float, float]:
@@ -31,48 +33,16 @@ class GoldenSearch(Optim):
                 a = x1
                 x1 = x2
                 x2 = self._next_a(a, b)
-
+        
         return (a + b) / 2
 
 
-class Backtracking(Optim):
-    def __init__(self, alpha: float = 1.0, beta: float = 0.5, delta: float = 0.1, isArmijo: bool = True) -> None:
-        self.alpha = alpha
-        self.beta = beta
-        self.delta = delta
-        self.isArmijo = isArmijo
-
-    def _check_condition(self, func_callback, func_grad_callback, x, alpha) -> bool:
-        if self.isArmijo:
-            return func_callback(x - alpha * func_grad_callback(x)) > func_callback(x) - self.delta * alpha * (func_grad_callback(x).T @ func_grad_callback(x))
-        else:
-            return func_callback(x - alpha * func_grad_callback(x)) > func_callback(x)
-
-    def optimize(self, func_callback, func_grad_callback, x_k) -> float:
-        alpha = self.alpha
-
-        while self._check_condition(func_callback, func_grad_callback, x_k, alpha):
-            alpha *= self.beta
-
-        return alpha
-
 if __name__ == "__main__":
+    func = lambda x: x**4 - 14 * x**3 + 60 * x**2 - 70 * x
+    low_bound = 0
+    up_bound = 2
 
-    # func = lambda x: x**4 - 14 * x**3 + 60 * x**2 - 70 * x
-    # low_bound = 0
-    # up_bound = 2
+    gs = GoldenSearch()
+    soln = gs.optimize(func, low_bound, up_bound)
 
-    # gs = GoldenSearch()
-    # soln = gs.optimize(func, low_bound, up_bound)
-
-    func = lambda x: 4 * x[0] ** 2 + x[1] ** 2 - 2 * x[0] * x[1]
-    grad = lambda x: np.array([8 * x[0] - 2 * x[1], 2 * x[1] - 2 * x[0]])
-
-    btls = Backtracking(alpha=1)
-    soln = np.array([10, 10])
-    while np.linalg.norm(grad(soln)) > 1e-3:
-        alpha = btls.optimize(func, grad, soln)
-        soln = soln - alpha * grad(soln)
-        print(f" -> Alpha = {alpha}, New X = {soln}")
-
-    print("Optimal Solution:", soln)
+    print("Optimal solution:", soln)

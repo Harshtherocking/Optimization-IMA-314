@@ -3,6 +3,7 @@ from numpy import ndarray
 from abc import abstractmethod, ABC 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import matplotlib
 
 EPS = 1e-6
 
@@ -80,7 +81,8 @@ class Function :
               points : list[ndarray] | ndarray | None  = None,
               x_range: tuple[int,int] = (-10,10),
               y_range : tuple[int,int] = (-10,10),
-              num_points : int = 100) -> None : 
+              num_points : int = 100,
+              show : bool = True) -> None | matplotlib.figure.Figure: 
 
         if points :
             points_array = np.array(points)
@@ -114,20 +116,10 @@ class Function :
         ax.set_title(self.__repr__())
 
         fig.colorbar(surf, shrink=0.5, aspect=5)
-        plt.show()
-
-
-if __name__ == "__main__" :
-    f = lambda x : x[0]**2 + x[1] **2
-    g = lambda x : np.array([2*x[0], 2*x[1]])
-
-    func = Function(f,g, "func")
-
-    x  = np.array([3,8])
-
-    print(func(x))
-    print(func.grad(x))
-    print(func)
+        if (show) :
+            plt.show()
+        else :
+            return fig
 
 
 class Algo (): 
@@ -143,7 +135,7 @@ class Algo ():
         pass
 
     @abstractmethod
-    def test (self, X_test : ndarray, Y_test : ndarray, is_plot : bool) -> None : 
+    def test (self, X_test : ndarray, Y_test : ndarray, is_plot : bool) -> np.float32 : 
         pass
 
     @abstractmethod
