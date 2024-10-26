@@ -21,7 +21,11 @@ class Function :
     '''
     Base class for functions
     func : function which should return : ndarray() object type
-    grad : gradient function returning ndarray() obeject type
+
+    Gradient and Hessian calculation are implemeneted for 2-D inputs. 
+    For N dimension input, also provide  :
+        grad_func : gradient function returning : ndarray() object type
+        hessian_func : hessian function returning : ndarray() object type
     '''
     def __init__ (self, func , grad_func = None, hessian_func = None, name : str = "myFunc" ) -> None :
         self.__func = func

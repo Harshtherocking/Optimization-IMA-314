@@ -15,17 +15,13 @@ if __name__ == "__main__":
     X = np.array([
         [1],
         [2],
-        [3]
+        [3],
         ])
 
-    Y = np.array([
-        [2],
-        [4],
-        [6]
-        ])
+    Y = np.array([3,5,7])
 
-    gd = GradientDescent(alpha_optim = GoldenSearch() )
-    lr = LinearRegression(optim = Adam())
+    gd = GradientDescent(alpha_optim = GoldenSearch())
+    lr = LinearRegression(optim = NewtonMethod())
     lr.train(X_train= X, Y_train= Y, is_plot= True)
 
 
@@ -34,5 +30,4 @@ if __name__ == "__main__":
         [4]
         ])
 
-    print("results : ", lr(x))
 
