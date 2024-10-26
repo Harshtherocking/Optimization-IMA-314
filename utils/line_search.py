@@ -35,7 +35,7 @@ class GoldenSearch(Optim):
         return (a + b) / 2
 
 
-class BacktrackingLineSearch(Optim):
+class Backtracking(Optim):
     def __init__(self, alpha: float = 1.0, beta: float = 0.5, delta: float = 0.1, isArmijo: bool = True) -> None:
         self.alpha = alpha
         self.beta = beta
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     func = lambda x: 4 * x[0] ** 2 + x[1] ** 2 - 2 * x[0] * x[1]
     grad = lambda x: np.array([8 * x[0] - 2 * x[1], 2 * x[1] - 2 * x[0]])
 
-    btls = BacktrackingLineSearch(alpha=1)
+    btls = Backtracking(alpha=1)
     soln = np.array([10, 10])
     while np.linalg.norm(grad(soln)) > 1e-3:
         alpha = btls.optimize(func, grad, soln)
