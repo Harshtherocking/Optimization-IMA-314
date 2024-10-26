@@ -181,29 +181,29 @@ class Adam (Optim):
         self.alpha = alpha 
         self.beta_1 = beta_1
         self.beta_2 = beta_2
-        self.first_order_acc : ndarray | None = None
-        self.second_order_acc : ndarray | None = None
+        self.first_moment_acc : ndarray | None = None
+        self.second_moment_acc : ndarray | None = None
         return
 
     def _reset (self) -> None : 
-        self.first_order_acc : ndarray | None = None
-        self.second_order_acc : ndarray | None = None
+        self.first_moment_acc : ndarray | None = None
+        self.second_moment_acc : ndarray | None = None
         self.num_iter = 0
         return
 
 
     def _next (self, x : ndarray, grad_func_callback) -> ndarray :
-        assert (isinstance(self.first_order_acc, ndarray)), "initial first order accumulation not defined"
-        assert (isinstance(self.second_order_acc, ndarray)), "initial second order accumulation not defined"
+        assert (isinstance(self.first_moment_acc, ndarray)), "initial first order accumulation not defined"
+        assert (isinstance(self.second_moment_acc, ndarray)), "initial second order accumulation not defined"
 
-        self.first_order_acc = self.beta_1 * self.first_order_acc + (1 - self.beta_1) * grad_func_callback(x)
-        self.second_order_acc = self.beta_2 * self.second_order_acc + (1 - self.beta_2) * np.square(grad_func_callback(x)) 
+        self.first_moment_acc = self.beta_1 * self.first_moment_acc + (1 - self.beta_1) * grad_func_callback(x)
+        self.second_moment_acc = self.beta_2 * self.second_moment_acc + (1 - self.beta_2) * np.square(func(x)) 
 
-        assert (isinstance(self.first_order_acc, ndarray)), "problem in first order accumulation"
-        assert (isinstance(self.second_order_acc, ndarray)), "problem in second order accumulation"
+        assert (isinstance(self.first_moment_acc, ndarray)), "problem in first order accumulation"
+        assert (isinstance(self.second_moment_acc, ndarray)), "problem in second order accumulation"
 
-        first_order_corrected = self.first_order_acc / (1-self.beta_1)
-        second_order_corrected = self.second_order_acc / (1-self.beta_2)
+        first_order_corrected = self.first_moment_acc / (1-self.beta_1)
+        second_order_corrected = self.second_moment_acc / (1-self.beta_2)
 
         assert (isinstance(first_order_corrected, ndarray)), "problem in first order correction"
         assert (isinstance(second_order_corrected, ndarray)), "problem in second order correction"
@@ -212,8 +212,8 @@ class Adam (Optim):
 
 
     def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
-        self.first_order_acc = np.zeros(x.shape)
-        self.second_order_acc = np.zeros(x.shape)
+        self.first_moment_acc = np.zeros(x.shape)
+        self.second_moment_acc = np.zeros(x.shape)
         plot_points : list[ndarray] = [x]
 
         while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 

@@ -13,21 +13,22 @@ from utils.line_search import GoldenSearch
 
 if __name__ == "__main__":
     X = np.array([
-        [1],
-        [2],
-        [3],
+        [1,2],
+        [2,3],
+        [3,4],
         ])
 
     Y = np.array([3,5,7])
 
     gd = GradientDescent(alpha_optim = GoldenSearch())
-    lr = LinearRegression(optim = NewtonMethod())
-    lr.train(X_train= X, Y_train= Y, is_plot= True)
 
+    lr = LinearRegression(optim = gd)
+    lr.train(X_train= X, Y_train= Y, is_plot= True)
 
     x = np.array([
         [1],
         [4]
         ])
+
 
 

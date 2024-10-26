@@ -56,12 +56,12 @@ class Function :
         _x, _y = x
         d2f_dx2 = (self.__func(np.array([_x + EPS, _y])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x - EPS, _y]))) / (EPS ** 2)
         d2f_dy2 = (self.__func(np.array([_x, _y + EPS])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x, _y - EPS]))) / (EPS ** 2)
-        
+
         d2f_dxdy = (self.__func(np.array([_x + EPS, _y + EPS])) - self.__func(np.array([_x + EPS, _y - EPS])) - 
-                     self.__func(np.array([_x - EPS, _y + EPS])) + self.__func(np.array([_x - EPS, _y - EPS]))) / (4 * EPS ** 2)
+                    self.__func(np.array([_x - EPS, _y + EPS])) + self.__func(np.array([_x - EPS, _y - EPS]))) / (4 * EPS ** 2)
 
         hessian_matrix = np.array([[d2f_dx2, d2f_dxdy],
-                                    [d2f_dxdy, d2f_dy2]])
+                                   [d2f_dxdy, d2f_dy2]])
         return hessian_matrix
 
     def optimize (self, initial_val : ndarray, optim: Optim, is_plot : bool = False) -> ndarray :
@@ -78,17 +78,17 @@ class Function :
 
     def plot (self,
               points : list[ndarray] | ndarray | None  = None,
-              x_val : tuple[int,int] = (-10,10),
-              y_val : tuple[int,int] = (-10,10),
+              x_range: tuple[int,int] = (-10,10),
+              y_range : tuple[int,int] = (-10,10),
               num_points : int = 100) -> None : 
 
         if points :
             points_array = np.array(points)
-            x_val = (np.min(points_array[:, 0]) - 1, np.max(points_array[:, 0]) + 1)
-            y_val = (np.min(points_array[:, 1]) - 1, np.max(points_array[:, 1]) + 1)
+            x_range = (np.min(points_array[:, 0]) - 1, np.max(points_array[:, 0]) + 1)
+            y_range = (np.min(points_array[:, 1]) - 1, np.max(points_array[:, 1]) + 1)
 
-        x = np.linspace(x_val[0], x_val[1], num_points)
-        y = np.linspace(y_val[0], y_val[1], num_points)
+        x = np.linspace(x_range[0], x_range[1], num_points)
+        y = np.linspace(y_range[0], y_range[1], num_points)
         X, Y = np.meshgrid(x, y)
 
         Z = np.array([self.__call__(np.array([xi, yi])) for xi, yi in zip(X.flatten(), Y.flatten())]).reshape(X.shape)
@@ -101,7 +101,7 @@ class Function :
 
         # scatter plot the trajectory of points 
         if points is not None and len(points) > 0:
-                # Extract x, y from each point and calculate Z values
+            # Extract x, y from each point and calculate Z values
                 x_points = np.array([p[0] for p in points])  # X values
                 y_points = np.array([p[1] for p in points])  # Y values
                 z_points = np.array([self.__call__(p) for p in points])  # Z values
@@ -128,7 +128,6 @@ if __name__ == "__main__" :
     print(func(x))
     print(func.grad(x))
     print(func)
-
 
 
 class Algo (): 
