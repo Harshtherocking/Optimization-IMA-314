@@ -37,43 +37,27 @@ class Function :
         return self.__name
 
     def grad(self, x: np.ndarray) -> np.ndarray:
-        if self.__grad_func:
+        if self.__grad_func : 
             return self.__grad_func(x)
 
-        grad = np.zeros_like(x)
-        for i in range(len(x)):
-            x_plus = np.array(x)
-            x_minus = np.array(x)
-            x_plus[i] += EPS
-            x_minus[i] -= EPS
-            grad[i] = (self.__func(x_plus) - self.__func(x_minus)) / (2 * EPS)
-        return grad
+        _x, _y = x
+        df_dx = (self.__func(np.array([_x + EPS, _y])) - self.__func(np.array([_x - EPS, _y]))) / (2 * EPS)
+        df_dy = (self.__func(np.array([_x, _y + EPS])) - self.__func(np.array([_x, _y - EPS]))) / (2 * EPS)
+        return np.array([df_dx, df_dy])
 
     def hessian(self, x: np.ndarray) -> np.ndarray:
-        if self.__hessian_func:
+        if self.__hessian_func : 
             return self.__hessian_func(x)
 
-        n = len(x)
-        hessian_matrix = np.zeros((n, n))
-        for i in range(n):
-            for j in range(n):
-                x_plus_plus = np.array(x)
-                x_plus_minus = np.array(x)
-                x_minus_plus = np.array(x)
-                x_minus_minus = np.array(x)
-                
-                x_plus_plus[i] += EPS
-                x_plus_plus[j] += EPS
-                x_plus_minus[i] += EPS
-                x_minus_minus[j] -= EPS
-                x_minus_plus[i] -= EPS
+        _x, _y = x
+        d2f_dx2 = (self.__func(np.array([_x + EPS, _y])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x - EPS, _y]))) / (EPS ** 2)
+        d2f_dy2 = (self.__func(np.array([_x, _y + EPS])) - 2 * self.__func(np.array([_x, _y])) + self.__func(np.array([_x, _y - EPS]))) / (EPS ** 2)
+        
+        d2f_dxdy = (self.__func(np.array([_x + EPS, _y + EPS])) - self.__func(np.array([_x + EPS, _y - EPS])) - 
+                     self.__func(np.array([_x - EPS, _y + EPS])) + self.__func(np.array([_x - EPS, _y - EPS]))) / (4 * EPS ** 2)
 
-                f_pp = self.__func(x_plus_plus)
-                f_pm = self.__func(x_plus_minus)
-                f_mp = self.__func(x_minus_plus)
-                f_mm = self.__func(x_minus_minus)
-
-                hessian_matrix[i, j] = (f_pp - f_pm - f_mp + f_mm) / (4 * EPS ** 2)
+        hessian_matrix = np.array([[d2f_dx2, d2f_dxdy],
+                                    [d2f_dxdy, d2f_dy2]])
         return hessian_matrix
 
     def optimize (self, initial_val : ndarray, optim: Optim, is_plot : bool = False) -> ndarray :
@@ -93,9 +77,6 @@ class Function :
               x_val : tuple[int,int] = (-10,10),
               y_val : tuple[int,int] = (-10,10),
               num_points : int = 100) -> None : 
-        '''
-        Implemented only for 2-D
-        '''
 
         if points :
             points_array = np.array(points)

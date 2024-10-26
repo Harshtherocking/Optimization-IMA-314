@@ -12,7 +12,6 @@ from utils.line_search import GoldenSearch
 
 
 if __name__ == "__main__":
-
     X = np.array([
         [1],
         [2],
@@ -20,15 +19,20 @@ if __name__ == "__main__":
         ])
 
     Y = np.array([
-        [3],
-        [5],
-        [7]
+        [2],
+        [4],
+        [6]
         ])
 
     gd = GradientDescent(alpha_optim = GoldenSearch() )
     lr = LinearRegression(optim = Adam())
+    lr.train(X_train= X, Y_train= Y, is_plot= True)
 
-    lr.train(X_train= X, Y_train= Y, is_plot= True) 
 
-    
+    x = np.array([
+        [1],
+        [4]
+        ])
+
+    print("results : ", lr(x))
 
