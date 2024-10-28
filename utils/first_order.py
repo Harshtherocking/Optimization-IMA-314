@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import ndarray
 from utils.base import Optim, Function
+from utils.line_search import GoldenSearch
 
 EPSILON = 0.0001
 
@@ -20,14 +21,17 @@ class GradientDescent (Optim):
 
     def _next (self, x: ndarray, func_callback, grad_func_callback) -> ndarray : 
 
-        if isinstance(self.alpha_optim, Optim) : 
-
+        # For Line Search 
+        if isinstance(self.alpha_optim, Optim)  : 
             self.alpha = self.alpha_optim.optimize(
-                    func_callback= lambda alpha : func_callback(x - alpha * grad_func_callback(x)),
-                    lower_bound = 0, upper_bound = 1
-                    ) 
+                    x = x, 
+                    Func = lambda alpha : func_callback(x + alpha * grad_func_callback(x)),
+                    func_callback = func_callback,
+                    grad_func_callback = grad_func_callback,
+                    lower_bound = 0,
+                    upper_bound = 1
+                    )
 
-        # print(f"Alpha : {self.alpha}")
         return x - self.alpha * grad_func_callback(x)
 
     def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
@@ -51,8 +55,9 @@ class NesterovAcceleratedGradientDescent (Optim):
     '''
     NGD description
     '''
-    def __init__ (self, alpha : float = 0.01, momemtum_coff : float = 0.75) -> None : 
+    def __init__ (self, alpha : float = 0.01, alpha_optim : Optim | None = None, momemtum_coff : float = 0.75) -> None : 
         self.alpha = alpha 
+        self.alpha_optim = alpha_optim
         self.momemtum_coff  = momemtum_coff
         self.momentum : ndarray | None = None;
         return
@@ -69,6 +74,7 @@ class NesterovAcceleratedGradientDescent (Optim):
         assert (isinstance(self.momentum, ndarray)), "initial momentum not defined"
 
         x_look_ahead = x - self.momemtum_coff * self.momentum
+
         self.momentum = self.momemtum_coff * self.momentum  + self.alpha * grad_func_callback(x_look_ahead)
 
         return x - self.momentum
@@ -95,8 +101,9 @@ class Adagrad (Optim):
     '''
     Adagrad description
     '''
-    def __init__ (self, alpha : float = 0.01) -> None : 
+    def __init__ (self, alpha : float = 0.01, alpha_optim : Optim | None = None) -> None : 
         self.alpha = alpha 
+        self.alpha_optim = alpha_optim
         self.sq_grad_acc: ndarray | None = None;
         return
 
@@ -111,6 +118,7 @@ class Adagrad (Optim):
         self.sq_grad_acc += np.square(grad_func_callback(x))
 
         assert (isinstance(self.sq_grad_acc, ndarray)), "problem in accumulation"
+
         return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_func_callback(x)
 
 
@@ -136,8 +144,9 @@ class RMSProp(Optim):
     '''
     RMSProp description
     '''
-    def __init__ (self, alpha : float = 0.01, beta : float = 0.9) -> None : 
+    def __init__ (self, alpha : float = 0.01, alpha_optim : Optim | None = None, beta : float = 0.9) -> None : 
         self.alpha = alpha 
+        self.alpha_optim = alpha_optim
         self.beta = beta
         self.sq_grad_acc: ndarray | None = None;
         return
@@ -153,6 +162,7 @@ class RMSProp(Optim):
         self.sq_grad_acc = self.beta * self.sq_grad_acc + (1 - self.beta) * np.square(grad_func_callback(x))
 
         assert (isinstance(self.sq_grad_acc, ndarray)), "problem in accumulation"
+
         return x - self.alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_func_callback(x)
 
 
@@ -177,8 +187,9 @@ class Adam (Optim):
     '''
     Adam description
     '''
-    def __init__ (self, alpha : float = 0.01, beta_1 : float = 0.9, beta_2 : float = 0.99) -> None : 
+    def __init__ (self, alpha : float = 0.01, alpha_optim : Optim | None = None, beta_1 : float = 0.9, beta_2 : float = 0.99) -> None : 
         self.alpha = alpha 
+        self.alpha_optim = alpha_optim
         self.beta_1 = beta_1
         self.beta_2 = beta_2
         self.first_moment_acc : ndarray | None = None
@@ -207,7 +218,7 @@ class Adam (Optim):
 
         assert (isinstance(first_order_corrected, ndarray)), "problem in first order correction"
         assert (isinstance(second_order_corrected, ndarray)), "problem in second order correction"
-
+    
         return x - self.alpha / np.sqrt(second_order_corrected + EPSILON) * first_order_corrected
 
 
@@ -233,7 +244,7 @@ class Subgradient (Optim):
     '''
     Subgradient - description
     '''
-    def __init__ (self, alpha: float = 0.01, alpha_optim : None | Optim  = None) -> None: 
+    def __init__ (self, alpha: float = 0.01) -> None: 
         self.alpha = alpha
         self.f_best : float | None = None
         self.K = 100

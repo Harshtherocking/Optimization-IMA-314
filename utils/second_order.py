@@ -28,20 +28,12 @@ class NewtonMethod (Optim):
 
         # if not a positive definite hessian
         else:   
-            # Levenberg-Marquardt modification
+        # Levenberg-Marquardt modification
 
             # ensuring the resultant damp factor is bigger than abs 
             # (minimum of  eigen values of hessian) 
             # so that resultant hessian is positive hessian 
             delta = inv(hessian_func_callback(x) + ( self.damp_factor + abs( min(eig(hessian_func_callback(x))[0]) ) ) * np.identity(x.shape[0])) @ grad_func_callback(x)
-
-            #optimize alpha 
-            if isinstance(self.alpha_optim, Optim) : 
-
-                self.alpha = self.alpha_optim.optimize(
-                        func_callback= lambda alpha : func_callback(x - alpha * delta),
-                        lower_bound = 0, upper_bound = 1
-                        ) 
 
             return x - self.alpha * delta
 
@@ -59,7 +51,7 @@ class NewtonMethod (Optim):
         if is_plot : 
             return x, plot_points
         return x
-    
+
 
 
 
@@ -86,7 +78,7 @@ class DFP (Optim):
 
 
     def _next (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback) -> ndarray : 
-        
+
         # first step, take real hessian not approximation 
         # this wont run for subsequent iterations
         if (not isinstance(self.hessian_k, ndarray)) : 
@@ -97,19 +89,12 @@ class DFP (Optim):
 
         direction = - self.hessian_k @ grad_func_callback(x) 
 
-        # optimize search direction alpha 
-        if isinstance(self.alpha_optim, Optim) : 
-
-            self.alpha = self.alpha_optim.optimize(
-                    func_callback= lambda alpha : func_callback(x + alpha * direction),
-                    lower_bound = 0, upper_bound = 1
-                    ) 
 
         x_new = x + self.alpha * direction
 
         del_x = self.alpha * direction
         del_grad = grad_func_callback(x_new) - grad_func_callback(x)
-        
+
         # resizing del_x and del_grad to encounter transposing issue
         assert (isinstance(del_x, ndarray))
         assert (isinstance(del_grad, ndarray))
@@ -122,7 +107,7 @@ class DFP (Optim):
 
         return x_new
 
- 
+
     def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         plot_points : list[ndarray] = [x]
 
@@ -160,7 +145,7 @@ class BFGS (Optim):
 
 
     def _next (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback) -> ndarray : 
-        
+
         # first step, take real hessian not approximation 
         # this wont run for subsequent iterations
         if (not isinstance(self.hessian_k, ndarray)) : 
@@ -170,14 +155,6 @@ class BFGS (Optim):
         assert(eig(self.hessian_k)[0].all() > 0), "Not positive definite hessian"
 
         direction = - self.hessian_k @ grad_func_callback(x) 
-
-        # optimize search direction alpha 
-        if isinstance(self.alpha_optim, Optim) : 
-
-            self.alpha = self.alpha_optim.optimize(
-                    func_callback= lambda alpha : func_callback(x + alpha * direction),
-                    lower_bound = 0, upper_bound = 1
-                    ) 
 
         x_new = x + self.alpha * direction
 
@@ -191,17 +168,17 @@ class BFGS (Optim):
         del_x.resize((len(del_x), 1))
         del_grad.resize((len(del_grad), 1))
 
-        
+
         self.hessian_k = inv(
                 inv(self.hessian_k) 
-                 + (del_grad @ del_grad.T) / (del_grad.T @ del_x) 
-                 - ( inv(self.hessian_k) @ del_x @ del_x.T @ inv(self.hessian_k) )  
-                 / (del_x.T @ inv(self.hessian_k) @ del_x)
+                + (del_grad @ del_grad.T) / (del_grad.T @ del_x) 
+                - ( inv(self.hessian_k) @ del_x @ del_x.T @ inv(self.hessian_k) )  
+                / (del_x.T @ inv(self.hessian_k) @ del_x)
                 )
 
         return x_new
 
- 
+
     def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
         plot_points : list[ndarray] = [x]
 

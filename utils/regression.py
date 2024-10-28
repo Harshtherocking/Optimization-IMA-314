@@ -1,8 +1,6 @@
 import numpy as np
 from utils.base import Function, Optim, Algo
-from utils.first_order import GradientDescent
 import matplotlib.pyplot as plt 
-import matplotlib
 
 
 class LinearRegression (Algo) :
@@ -32,28 +30,10 @@ class LinearRegression (Algo) :
 
     def __call__ (self, X : np.ndarray, is_plot : bool = False) -> np.ndarray : 
         assert (isinstance(self.__model, Function) and isinstance(self.__W, np.ndarray)), "Model not trained" 
-        assert (self.__W.shape[0] == X.shape[1]), "Input dimension doesn't match"
-        # return model prediction
-        if is_plot : 
-            self._plot(X, self.__model(X))
+        assert (self.__W.shape[0] == X.shape[1]), f"Input dimension doesn't match\nWeights : {self.__W.shape} Input : {X.shape}"
+
         return self.__model(X)
 
-    def _plot (self, X : np.ndarray, Y : np.ndarray) -> None : 
-        if isinstance(self.__model, Function) : 
-            model_fig = self.__model.plot(show = False)
-            assert(isinstance(model_fig, matplotlib.figure.Figure))
-            if (X.shape[1] < 3) : 
-                ax = model_fig.gca()
-                if X.shape[1] == 1:
-                    ax.scatter(X, Y, color='blue', label='Data Points')
-
-                elif X.shape[1] == 2:
-                    ax.scatter(X[:, 0], X[:, 1], c=Y, cmap='plasma')
-
-            plt.show()
-        else : 
-            print("Model is not trained")
-        return
 
     def train (self, X_train : np.ndarray, Y_train : np.ndarray, epochs : int = 1, is_plot : bool = False) -> None : 
         assert (X_train.shape[0] == Y_train.shape[0]), f"Dimension mismatch X : {X_train.shape} and Y : {Y_train.shape}"
@@ -118,16 +98,11 @@ class LinearRegression (Algo) :
                 func = lambda x : x @ self.__W + self.__B
                 )
 
-        if (is_plot) :
-            self._plot(X_train, Y_train)
-
         return
 
     def test (self, X_test : np.ndarray, Y_test : np.ndarray, is_plot : bool = False) -> np.float32 : 
         y_cap = self.__call__(X_test)
         error = y_cap  - Y_test
-        if is_plot : 
-            self._plot(X_test, Y_test)
         return np.linalg.norm(error)
 
 

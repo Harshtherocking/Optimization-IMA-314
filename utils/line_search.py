@@ -20,12 +20,15 @@ class GoldenSearch(Optim):
     def _next_a(self, a, b) -> float:
         return a + (b - a) * self.phi
 
-    def optimize(self, func_callback, lower_bound: float, upper_bound: float) -> float:
+    def optimize(self, x, Func, func_callback, grad_func_callback, lower_bound: float, upper_bound: float) -> float:
+        # defining target function to optimize
+        Func = Func if Func else lambda alpha : func_callback(x - alpha * grad_func_callback(x))
+
         a, b = lower_bound, upper_bound
         x1, x2 = self._first(a, b)
 
         while abs(b - a) > EPS:
-            if func_callback(x1) < func_callback(x2):
+            if Func(x1) < Func(x2):
                 b = x2
                 x2 = x1
                 x1 = self._next_b(a, b)
@@ -37,12 +40,27 @@ class GoldenSearch(Optim):
         return (a + b) / 2
 
 
-if __name__ == "__main__":
-    func = lambda x: x**4 - 14 * x**3 + 60 * x**2 - 70 * x
-    low_bound = 0
-    up_bound = 2
 
-    gs = GoldenSearch()
-    soln = gs.optimize(func, low_bound, up_bound)
+class Backtracking (Optim):
+    def __init__(self, beta: float = 0.5, delta: float = 0.1, isArmijo: bool = True) -> None:
+        # diminishing factor
+        self.beta = beta
+        # controlling factor
+        self.delta = delta
 
-    print("Optimal solution:", soln)
+        self.isArmijo = isArmijo
+
+    def _check_condition(self,alpha, Func) -> bool:
+        return Func(alpha)
+
+    def optimize(self, x, Func, func_callback, grad_func_callback, lower_bound: float, upper_bound: float) -> float:
+        # defining target function to optimize
+        Func = lambda alpha : func_callback(x - alpha * grad_func_callback(x)) > func_callback(x) - self.delta * alpha * (grad_func_callback(x).T @ grad_func_callback(x)) if self.isArmijo else lambda alpha : func_callback(x - alpha * grad_func_callback(x)) > func_callback(x) 
+
+        alpha = upper_bound
+
+        while self._check_condition(alpha, Func) and alpha > lower_bound:
+            alpha *= self.beta
+        return alpha
+
+
