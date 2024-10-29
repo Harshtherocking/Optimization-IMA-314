@@ -123,4 +123,4 @@ Feel free to contribute by submitting issues or pull requests. We welcome any im
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 ---
-![gif](./src/bubble_ring.gif)
+***In mathematics the art of proposing a question must be held of higher value than solving it.***
