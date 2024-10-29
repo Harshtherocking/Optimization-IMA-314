@@ -2,20 +2,48 @@
 
 Welcome to the repository for the Optimization Course IMA-314! This course covers fundamental concepts and techniques in optimization, focusing primarily on first-order and second-order optimization methods.
 
-### Course Overview
+### Directory Structure
 
-In this course, we will explore various optimization algorithms, including:
+The repository contains several utility files organized in the `./utils/` directory, each serving specific functionalities related to optimization:
 
-- **Gradient Descent (GD)**: A first-order iterative optimization algorithm for finding a local minimum of a differentiable function.
-- **Nesterov Gradient Descent (NGD)**: An enhanced version of GD that incorporates a momentum term to improve convergence speed and accuracy.
-- **Subgradient Method**: A generalization of gradient descent for non-differentiable functions, allowing optimization in broader contexts.
-- **Adagrad**: An adaptive learning rate method that adjusts the learning rate based on the parameters.
-- **RMSProp**: A modification of Adagrad that helps mitigate the rapid decay of the learning rate.
-- **Adam**: Combines the advantages of both Adagrad and RMSProp, using moments to enhance convergence. 
+- **Base Utilities**
+  - `base.py`: Base classes for:
+    - Optimizer
+    - Functions
+    - Algorithms
 
+- **First-Order Optimization Algorithms**
+  - `first_order.py`: Implementations of:
+    - Gradient Descent
+    - Nesterov Gradient Descent
+    - RMSProp
+    - Adagrad
+    - Adam
+    - Subgradient
+
+- **Second-Order Optimization Algorithms**
+  - `second_order.py`: Implementations of:
+    - Newton's Method
+    - BFGS
+    - DFP
+    - Conjugate Gradient
+
+- **Line Search Methods**
+  - `line_search.py`: Implements:
+    - Golden Section
+    - Backtracking
+
+- **Regression Implementations**
+  - `regression.py`: Includes:
+    - Linear Regression
+    - Logistic Regression
+
+- **Benchmark Functions**
+  - `functions.py`: Provides functions such as:
+    - Piecewise Linear
+    - Rosenbrock
 
 ## Getting Started
-![Optimization GIF](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTJubjE1MnV6amZvNTlmcTMxemRwZHNzOWJ1d3JvY3VmZHYyd3d0eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/eChf44Gyj2VrO/200.webp)  <!-- Replace with a relevant GIF URL -->
 
 To get started with the course materials and exercises, clone this repository:
 
@@ -95,3 +123,4 @@ Feel free to contribute by submitting issues or pull requests. We welcome any im
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 ---
+![gif](./src/bubble_ring.gif)
