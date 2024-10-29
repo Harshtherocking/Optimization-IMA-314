@@ -283,7 +283,6 @@ class Subgradient (Optim):
         return x
 
 
-
 if __name__ == "__main__" : 
     f = lambda x : x[0]**2 + x[1] **2
     g = lambda x : np.array([2*x[0], 2*x[1]])

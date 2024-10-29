@@ -6,7 +6,7 @@ from utils.first_order import GradientDescent, Adam, Adagrad
 
 from utils.functions import RosenBrock
 
-from utils.second_order import NewtonMethod, BFGS, DFP
+from utils.second_order import NewtonMethod, BFGS, DFP, ConjugateGradient
 
 from utils.line_search import GoldenSearch, Backtracking
 
@@ -55,5 +55,16 @@ if __name__ == "__main__":
     lr = LogisticRegression(optim = gd)
 
     lr.train(X, Y, is_plot= True)
+
+    print(lr(np.array([[1,2]])))
+
+    myfunc = Function(
+            func = lambda x : 0.5 * x[0] ** 2 + 10 * x[1] ** 2,
+            name = "sample"
+            )
+
+    initial = np.array([3,3])
+
+    print(myfunc.optimize(initial, optim = ConjugateGradient(), is_plot= True))
 
 

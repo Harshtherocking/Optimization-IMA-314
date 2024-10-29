@@ -194,3 +194,54 @@ class BFGS (Optim):
         if is_plot : 
             return x, plot_points
         return x
+
+
+
+class ConjugateGradient (Optim): 
+    '''
+    Conjugate Gradient - description
+    '''
+    def __init__ (self) -> None: 
+        self.direction : ndarray | None = None
+        self.beta : float | None = None
+        return 
+
+    def _reset (self) -> None : 
+        self.direction = None
+        self.beta = None
+        self.num_iter = 0
+        return
+
+    def _next (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback) -> ndarray : 
+
+        # For Line Search 
+        assert (isinstance(self.direction, ndarray)), "Initial direction vector not defined"
+        step_size = - (self.direction.T @ grad_func_callback(x)) / (self.direction.T @ hessian_func_callback(x) @ self.direction)
+         
+        x_new = x + step_size * self.direction
+
+        # calculate correlation factor 
+        self.beta =  - (self.direction.T @ hessian_func_callback(x) @ grad_func_callback(x_new)) / (self.direction.T @ hessian_func_callback(x) @ self.direction)
+
+        assert (self.beta), "Error in Beta calculation"
+        # new conjugate direction 
+        self.direction = - grad_func_callback(x_new) + self.beta * self.direction
+
+        return x_new
+        
+
+    def optimize (self, x: ndarray, func_callback, grad_func_callback, hessian_func_callback, is_plot : bool = False) -> ndarray | tuple[ndarray,list[ndarray]]: 
+        plot_points : list[ndarray] = [x]
+        self.direction = - grad_func_callback(x)
+
+        while (np.linalg.norm(grad_func_callback(x)) > EPSILON): 
+            self.num_iter += 1
+            x = self._next(x, func_callback, grad_func_callback, hessian_func_callback)
+
+            if is_plot :
+                plot_points.append(x)
+
+        self._reset()
+        if is_plot : 
+            return x, plot_points
+        return x
