@@ -203,7 +203,7 @@ class LogisticRegression (Algo) :
 
         # model function d
         self.__model = Function(
-                func = lambda x : x @ self.__W + self.__B
+                func = lambda x : 1 / (1 + np.exp(-x @ self.__W + self.__B))
                 )
 
         return
