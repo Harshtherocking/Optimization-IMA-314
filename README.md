@@ -1,4 +1,4 @@
-# Optimization Course IMA-314
+# Optimization IMA-314
 
 Welcome to the repository for the Optimization Course IMA-314! This course covers fundamental concepts and techniques in optimization, focusing primarily on first-order and second-order optimization methods.
 
