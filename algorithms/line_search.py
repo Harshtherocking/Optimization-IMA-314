@@ -1,7 +1,4 @@
-import numpy as np
-from numpy import ndarray
-
-from utils.base import Optim
+from algorithms.base import Optim
 
 EPS = 0.3
 

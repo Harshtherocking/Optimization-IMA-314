@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import ndarray
 from numpy.linalg import inv, eig
-from utils.base import Optim, Function
+from algorithms.base import Optim
 
 EPSILON = 0.0001
 

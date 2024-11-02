@@ -1,5 +1,5 @@
 import numpy as np
-from utils.base import Function
+from algorithms.base import Function
 from random import randrange
 
 A = 1

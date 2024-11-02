@@ -1,5 +1,5 @@
 import numpy as np
-from utils.base import Function, Optim, Algo
+from algorithms.base import Function, Optim, Algo
 import matplotlib.pyplot as plt
 
 

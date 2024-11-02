@@ -1,13 +1,12 @@
 import numpy as np
 
-from utils.base import Function
-from utils.functions import RosenBrock
-from utils.regression import LinearRegression, LogisticRegression
+from algorithms import Function
+from algorithms import LogisticRegression
 
-from utils.line_search import GoldenSearch, Backtracking
+from algorithms import Backtracking
 
-from utils.first_order import GradientDescent, Adam, Adagrad
-from utils.second_order import NewtonMethod, BFGS, DFP, ConjugateGradient
+from algorithms import GradientDescent
+from algorithms import ConjugateGradient
 
 if __name__ == "__main__":
 

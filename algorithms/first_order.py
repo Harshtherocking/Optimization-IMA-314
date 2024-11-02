@@ -1,7 +1,6 @@
 import numpy as np
 from numpy import ndarray
-from utils.base import Optim, Function
-from utils.line_search import GoldenSearch
+from algorithms.base import Optim, Function
 
 EPSILON = 0.0001
 

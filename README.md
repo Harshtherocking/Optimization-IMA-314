@@ -4,7 +4,7 @@ Welcome to the repository for the Optimization Course IMA-314! This course cover
 
 ### Directory Structure
 
-The repository contains several utility files organized in the `./utils/` directory, each serving specific functionalities related to optimization:
+The repository contains several utility files organized in the `./algorithms/` directory, each serving specific functionalities related to optimization:
 
 - **Base Utilities**
   - `base.py`: Base classes for:
@@ -60,6 +60,9 @@ pip install -r requirements.txt
 ## Example
 Command :
 ```python
+# import everything
+from algorithms import * 
+
 # declare a funciton 
 f = lambda x : x[0] ** 2 + 0.5 * x[1] ** 2
 
