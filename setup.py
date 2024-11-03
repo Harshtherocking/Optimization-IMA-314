@@ -7,7 +7,7 @@ setup (
         name = "ima-314",
         version = "0.0.1",
         long_description = long_description,
-        long_description_type = "text/markdown"
+        long_description_content_type = "text/markdown"
         package_dir={"":"./algorithms"},
         packages = find_packages(where = "./algorithms"),
         url = "https://github.com/Harshtherocking/Optimization-IMA-314/",
