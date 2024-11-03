@@ -81,7 +81,7 @@ Command:
 
 Output:
 
-.. image:: ./src/Figure_1.png
+.. image:: ../src/Figure_1.png
 
 Command:
 
@@ -125,7 +125,7 @@ Output:
 
    Optimize x : [2.80677703e-05 3.93062445e-05]
 
-.. image:: ./src/Figure_2.png
+.. image:: ../src/Figure_2.png
 
 Contributing
 ------------
