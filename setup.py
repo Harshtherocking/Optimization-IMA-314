@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-with open("./README.md", "r") as file : 
+with open("./algorithms/Readme.rst", "r") as file : 
     long_description = file.read()
 
 setup (
