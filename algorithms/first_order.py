@@ -33,7 +33,7 @@ class GradientDescent(Optim):
         if isinstance(self.alpha_optim, Optim):
             self.alpha = self.alpha_optim.optimize(
                 x=x,
-                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                Func=lambda alpha: func_callback(x - alpha * grad_func_callback(x)),
                 func_callback=func_callback,
                 grad_func_callback=grad_func_callback,
                 lower_bound=0,
@@ -106,7 +106,7 @@ class MomentumGradientDescent(Optim):
         if isinstance(self.alpha_optim, Optim):
             self.alpha = self.alpha_optim.optimize(
                 x=x,
-                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                Func=lambda alpha: func_callback(x - self.momentum_coeff * self.momentum + alpha * grad_func_callback(x)),
                 func_callback=func_callback,
                 grad_func_callback=grad_func_callback,
                 lower_bound=0,
@@ -179,18 +179,18 @@ class NesterovAcceleratedGradientDescent(Optim):
     def _next(self, x: ndarray, func_callback, grad_func_callback) -> ndarray:
         assert isinstance(self.momentum, ndarray), "initial momentum not defined"
 
+        x_look_ahead = x - self.momentum_coeff * self.momentum
+
         # For Line Search
         if isinstance(self.alpha_optim, Optim):
             self.alpha = self.alpha_optim.optimize(
                 x=x,
-                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                Func=lambda alpha: func_callback(x - self.momentum_coeff * self.momentum + alpha * grad_func_callback(x_look_ahead)),
                 func_callback=func_callback,
                 grad_func_callback=grad_func_callback,
                 lower_bound=0,
                 upper_bound=1,
             )
-
-        x_look_ahead = x - self.momentum_coeff * self.momentum
 
         self.momentum = (
             self.momentum_coeff * self.momentum
@@ -253,18 +253,18 @@ class Adagrad(Optim):
             self.sq_grad_acc, ndarray
         ), "initial square gradient accumulation not defined"
 
+        self.sq_grad_acc += np.square(grad_func_callback(x))
+
         # For Line Search
         if isinstance(self.alpha_optim, Optim):
             self.alpha = self.alpha_optim.optimize(
                 x=x,
-                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                Func=lambda alpha: func_callback(x - alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_func_callback(x)),
                 func_callback=func_callback,
                 grad_func_callback=grad_func_callback,
                 lower_bound=0,
                 upper_bound=1,
             )
-
-        self.sq_grad_acc += np.square(grad_func_callback(x))
 
         assert isinstance(self.sq_grad_acc, ndarray), "problem in accumulation"
         return x - self.alpha / np.sqrt(
@@ -336,7 +336,7 @@ class RMSProp(Optim):
         if isinstance(self.alpha_optim, Optim):
             self.alpha = self.alpha_optim.optimize(
                 x=x,
-                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                Func=lambda alpha: func_callback(x - alpha / np.sqrt(self.sq_grad_acc + EPSILON) * grad_func_callback(x)),
                 func_callback=func_callback,
                 grad_func_callback=grad_func_callback,
                 lower_bound=0,
@@ -423,16 +423,6 @@ class Adam(Optim):
             1 - self.beta_2
         ) * np.square(func(x))
 
-        # For Line Search
-        if isinstance(self.alpha_optim, Optim):
-            self.alpha = self.alpha_optim.optimize(
-                x=x,
-                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
-                func_callback=func_callback,
-                grad_func_callback=grad_func_callback,
-                lower_bound=0,
-                upper_bound=1,
-            )
 
         assert isinstance(
             self.first_moment_acc, ndarray
@@ -450,6 +440,17 @@ class Adam(Optim):
         assert isinstance(
             second_order_corrected, ndarray
         ), "problem in second order correction"
+
+        # For Line Search
+        if isinstance(self.alpha_optim, Optim):
+            self.alpha = self.alpha_optim.optimize(
+                x=x,
+                Func=lambda alpha: func_callback(x - alpha / np.sqrt(second_order_corrected + EPSILON) * first_order_corrected),
+                func_callback=func_callback,
+                grad_func_callback=grad_func_callback,
+                lower_bound=0,
+                upper_bound=1,
+            )
 
         return (
             x
