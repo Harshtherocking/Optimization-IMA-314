@@ -82,15 +82,20 @@ class Backtracking(Optim):
     def __init__(
         self, beta: float = 0.5, delta: float = 0.1, isArmijo: bool = True
     ) -> None:
-        # diminishing factor
-        self.beta = beta
-        # controlling factor
-        self.delta = delta
-
+        self.beta = beta        # diminishing factor
+        self.delta = delta      # controlling factor
+        # boolean controller to use default Backtracking Line Search with or without Armijo Rule
         self.isArmijo = isArmijo
 
-    def _check_condition(self, alpha, Func) -> bool:
-        return Func(alpha)
+    def _check_condition(
+        self, x, Func, func_callback, grad_func_callback, alpha
+    ) -> bool:
+        if self.isArmijo:
+            return func_callback(x - alpha * grad_func_callback(x)) > func_callback(x) - self.delta * alpha * (grad_func_callback(x).T @ grad_func_callback(x))
+        else:
+            if Func:
+                return Func(alpha)
+            return func_callback(x - alpha * grad_func_callback(x)) > func_callback(x)
 
     def optimize(
         self,
@@ -101,18 +106,13 @@ class Backtracking(Optim):
         lower_bound: float,
         upper_bound: float,
     ) -> float:
-        # defining target function to optimize
-        Func = lambda alpha: (
-            func_callback(x - alpha * grad_func_callback(x))
-            > func_callback(x)
-            - self.delta * alpha * (grad_func_callback(x).T @ grad_func_callback(x))
-            if self.isArmijo
-            else lambda alpha: func_callback(x - alpha * grad_func_callback(x))
-            > func_callback(x)
-        )
-
+        # Initializing alpha to Upper Bound
         alpha = upper_bound
-
-        while self._check_condition(alpha, Func) and alpha > lower_bound:
+        # Checking Normal Backtracking / Armijo Rule Condition
+        while (
+            self._check_condition(x, Func, func_callback, grad_func_callback, alpha)
+            and alpha > lower_bound
+        ):
             alpha *= self.beta
+
         return alpha

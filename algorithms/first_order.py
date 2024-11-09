@@ -66,6 +66,84 @@ class GradientDescent(Optim):
         return x
 
 
+class MomentumGradientDescent(Optim):
+    """
+    Implementation of Momentum Gradient Descent optimization.
+
+    This optimizer enhances gradient descent by incorporating a momentum term,
+    which helps accelerate convergence in the relevant direction and reduce oscillations.
+    The momentum is updated iteratively along with the learning rate (alpha).
+
+    Key Methods:
+    - optimize(x, func_callback, grad_func_callback, hessian_func_callback, is_plot=False):
+        Optimizes the input parameters using gradient descent with momentum. Optionally returns
+        the points traversed during optimization for plotting.
+    """
+
+    def __init__(
+        self,
+        alpha: float = 0.01,
+        alpha_optim: Optim | None = None,
+        momentum_coeff: float = 0.75,
+    ) -> None:
+        self.alpha = alpha
+        self.alpha_optim = alpha_optim
+        self.momentum_coeff = momentum_coeff
+        self.momentum: ndarray | None = None
+        return
+
+    def _reset(self) -> None:
+        self.alpha = 0.01
+        self.momentum_coeff = 0.75
+        self.momentum: ndarray | None = None
+        self.num_iter = 0
+        return
+
+    def _next(self, x: ndarray, func_callback, grad_func_callback) -> ndarray:
+        assert isinstance(self.momentum, ndarray), "initial momentum not defined"
+
+        # For Line Search
+        if isinstance(self.alpha_optim, Optim):
+            self.alpha = self.alpha_optim.optimize(
+                x=x,
+                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                func_callback=func_callback,
+                grad_func_callback=grad_func_callback,
+                lower_bound=0,
+                upper_bound=1,
+            )
+
+        self.momentum = (
+            self.momentum_coeff * self.momentum + self.alpha * grad_func_callback(x)
+        )
+        return x - self.momentum
+
+    def optimize(
+        self,
+        x: ndarray,
+        func_callback,
+        grad_func_callback,
+        hessian_func_callback,
+        is_plot: bool = False,
+    ) -> ndarray | tuple[ndarray, list[ndarray]]:
+        self.momentum = np.zeros(x.shape)
+        plot_points: list[ndarray] = [x]
+
+        while np.linalg.norm(grad_func_callback(x)) > EPSILON:
+            self.num_iter += 1
+
+            # Position Update Equation of the Momentum Algorithm: x = x - (alpha * grad(x) + gamma * momentum)
+            x = self._next(x, func_callback, grad_func_callback)
+
+            if is_plot:
+                plot_points.append(x)
+
+        self._reset()
+        if is_plot:
+            return x, plot_points
+        return x
+
+
 class NesterovAcceleratedGradientDescent(Optim):
     """
     Implementation of the Nesterov Accelerated Gradient Descent or NGD (I-Order) Algorithm.
@@ -98,10 +176,22 @@ class NesterovAcceleratedGradientDescent(Optim):
         self.num_iter = 0
         return
 
-    def _next(self, x: ndarray, grad_func_callback) -> ndarray:
+    def _next(self, x: ndarray, func_callback, grad_func_callback) -> ndarray:
         assert isinstance(self.momentum, ndarray), "initial momentum not defined"
 
+        # For Line Search
+        if isinstance(self.alpha_optim, Optim):
+            self.alpha = self.alpha_optim.optimize(
+                x=x,
+                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                func_callback=func_callback,
+                grad_func_callback=grad_func_callback,
+                lower_bound=0,
+                upper_bound=1,
+            )
+
         x_look_ahead = x - self.momentum_coeff * self.momentum
+
         self.momentum = (
             self.momentum_coeff * self.momentum
             + self.alpha * grad_func_callback(x_look_ahead)
@@ -123,8 +213,8 @@ class NesterovAcceleratedGradientDescent(Optim):
         while np.linalg.norm(grad_func_callback(x)) > EPSILON:
             self.num_iter += 1
 
-            # Position Update Equation of the Momentum Algorithm: x = x - (alpha * grad(x_look_ahead) + beta * momentum)
-            x = self._next(x, grad_func_callback)
+            # Position Update Equation of the NGD Algorithm: x = x - (alpha * grad(x_look_ahead) + gamma * momentum)
+            x = self._next(x, func_callback, grad_func_callback)
 
             if is_plot:
                 plot_points.append(x)
@@ -158,10 +248,21 @@ class Adagrad(Optim):
         self.num_iter = 0
         return
 
-    def _next(self, x: ndarray, grad_func_callback) -> ndarray:
+    def _next(self, x: ndarray, func_callback, grad_func_callback) -> ndarray:
         assert isinstance(
             self.sq_grad_acc, ndarray
         ), "initial square gradient accumulation not defined"
+
+        # For Line Search
+        if isinstance(self.alpha_optim, Optim):
+            self.alpha = self.alpha_optim.optimize(
+                x=x,
+                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                func_callback=func_callback,
+                grad_func_callback=grad_func_callback,
+                lower_bound=0,
+                upper_bound=1,
+            )
 
         self.sq_grad_acc += np.square(grad_func_callback(x))
 
@@ -184,7 +285,7 @@ class Adagrad(Optim):
         while np.linalg.norm(grad_func_callback(x)) > EPSILON:
             self.num_iter += 1
             # Position Update Equation of the Adagrad Algorithm: x = x - alpha / sqrt(sq_grad_acc + epsilon) * grad(x)
-            x = self._next(x, grad_func_callback)
+            x = self._next(x, func_callback, grad_func_callback)
 
             if is_plot:
                 plot_points.append(x)
@@ -222,13 +323,25 @@ class RMSProp(Optim):
         self.num_iter = 0
         return
 
-    def _next(self, x: ndarray, grad_func_callback) -> ndarray:
+    def _next(self, x: ndarray, func_callback, grad_func_callback) -> ndarray:
         assert isinstance(
             self.sq_grad_acc, ndarray
         ), "initial square gradient accumulation not defined"
+
         self.sq_grad_acc = self.beta * self.sq_grad_acc + (1 - self.beta) * np.square(
             grad_func_callback(x)
         )
+
+        # For Line Search
+        if isinstance(self.alpha_optim, Optim):
+            self.alpha = self.alpha_optim.optimize(
+                x=x,
+                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                func_callback=func_callback,
+                grad_func_callback=grad_func_callback,
+                lower_bound=0,
+                upper_bound=1,
+            )
 
         assert isinstance(self.sq_grad_acc, ndarray), "problem in accumulation"
         return x - self.alpha / np.sqrt(
@@ -249,7 +362,7 @@ class RMSProp(Optim):
         while np.linalg.norm(grad_func_callback(x)) > EPSILON:
             self.num_iter += 1
             # Position Update Equation of the RMSProp Algorithm: x = x - alpha / sqrt(sq_grad_acc + epsilon) * grad(x)
-            x = self._next(x, grad_func_callback)
+            x = self._next(x, func_callback, grad_func_callback)
 
             if is_plot:
                 plot_points.append(x)
@@ -295,7 +408,7 @@ class Adam(Optim):
         self.num_iter = 0
         return
 
-    def _next(self, x: ndarray, grad_func_callback) -> ndarray:
+    def _next(self, x: ndarray, func_callback, grad_func_callback) -> ndarray:
         assert isinstance(
             self.first_moment_acc, ndarray
         ), "initial first order accumulation not defined"
@@ -309,6 +422,17 @@ class Adam(Optim):
         self.second_moment_acc = self.beta_2 * self.second_moment_acc + (
             1 - self.beta_2
         ) * np.square(func(x))
+
+        # For Line Search
+        if isinstance(self.alpha_optim, Optim):
+            self.alpha = self.alpha_optim.optimize(
+                x=x,
+                Func=lambda alpha: func_callback(x + alpha * grad_func_callback(x)),
+                func_callback=func_callback,
+                grad_func_callback=grad_func_callback,
+                lower_bound=0,
+                upper_bound=1,
+            )
 
         assert isinstance(
             self.first_moment_acc, ndarray
@@ -349,7 +473,7 @@ class Adam(Optim):
         while np.linalg.norm(grad_func_callback(x)) > EPSILON:
             self.num_iter += 1
             # Position Update Equation of the Adam Algorithm: x = x - alpha / sqrt(1 - beta_2 ^ t) / (1 - beta_1 ^ t) * grad(x)
-            x = self._next(x, grad_func_callback)
+            x = self._next(x, func_callback, grad_func_callback)
 
             if is_plot:
                 plot_points.append(x)

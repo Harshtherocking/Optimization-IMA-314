@@ -13,9 +13,10 @@ class LinearRegression(Algo):
     and a bias, which are optimized during the training phase.
 
     Key Methods:
-    - train(X_train, Y_train, epochs=1, is_plot=False):
+    - train(X_train, Y_train, epochs=1, is_stochastic=False, batch_size=1, is_plot=False):
         Trains the model using the provided training data for a specified number of epochs.
         It initializes parameters, constructs augmented matrices, and optimizes the loss function.
+        If is_stochastic is True, it uses stochastic batch picking to pick a random subset of data points for each iteration.
 
     - test(X_test, Y_test, is_plot=False):
         Evaluates the model's performance on a test dataset and returns the norm of the error
@@ -33,7 +34,7 @@ class LinearRegression(Algo):
         self.__B: np.ndarray | None = None
 
         self.__Y_cap_func = lambda x_aug, w_aug: x_aug @ w_aug
-        self.__Error_func = lambda x_aug, y, w_aug: self.__Y_cap_func(x_aug, w_aug) - y
+        self.__error_func = lambda x_aug, y, w_aug: self.__Y_cap_func(x_aug, w_aug) - y
         self.__model: Function | None = None
         return
 
@@ -64,6 +65,8 @@ class LinearRegression(Algo):
         X_train: np.ndarray,
         Y_train: np.ndarray,
         epochs: int = 1,
+        is_stochastic: bool = False,
+        batch_size: int = 1,
         is_plot: bool = False,
     ) -> None:
         assert (
@@ -88,23 +91,53 @@ class LinearRegression(Algo):
         # training loop
         for epoch in range(epochs):
 
-            # initialising Loss Function
-            loss = Function(
-                func=lambda bw: 1
-                / (2 * Y_train.shape[0])
-                * np.square(
-                    np.linalg.norm(self.__Error_func(X_train_aug, Y_train, bw))
-                ),
-                grad_func=lambda bw: 1
-                / (Y_train.shape[0])
-                * X_train_aug.T
-                @ self.__Error_func(X_train_aug, Y_train, bw),
-                hessian_func=lambda bw: 1
-                / (Y_train.shape[0])
-                * X_train_aug.T
-                @ X_train_aug,
-                name="mean_square_error",
-            )
+            if is_stochastic:
+                assert batch_size <= X_train.shape[0], "Batch Size cannot be greater than the Nof. Data Points!"
+
+                X_train_aug_stc = X_train_aug[np.random.choice(X_train_aug.shape[0], batch_size, replace=False)]
+                Y_train_stc = Y_train[np.random.choice(Y_train.shape[0], batch_size, replace=False)]
+
+                # initialising Loss Function with Stochastic Batch Picking
+                loss = Function(
+                    func=lambda bw: 1
+                    / (2 * Y_train_stc.shape[0])
+                    * np.square(
+                        np.linalg.norm(self.__error_func(X_train_aug_stc, Y_train_stc, bw))
+                    ),
+
+                    grad_func=lambda bw: 1
+                    / (Y_train_stc.shape[0])
+                    * X_train_aug_stc.T
+                    @ self.__error_func(X_train_aug_stc, Y_train_stc, bw),
+
+                    hessian_func=lambda bw: 1
+                    / (Y_train_stc.shape[0])
+                    * X_train_aug_stc.T
+                    @ X_train_aug_stc,
+
+                    name="Loss Function: Mean Squared Error",
+                )
+            else:
+                # initialising Loss Function without Stochastic Batch Picking
+                loss = Function(
+                    func=lambda bw: 1
+                    / (2 * Y_train.shape[0])
+                    * np.square(
+                        np.linalg.norm(self.__error_func(X_train_aug, Y_train, bw))
+                    ),
+
+                    grad_func=lambda bw: 1
+                    / (Y_train.shape[0])
+                    * X_train_aug.T
+                    @ self.__error_func(X_train_aug, Y_train, bw),
+
+                    hessian_func=lambda bw: 1
+                    / (Y_train.shape[0])
+                    * X_train_aug.T
+                    @ X_train_aug,
+
+                    name="Loss Function: Mean Squared Error",
+                )
 
             # scatter plotting
             if is_plot:
@@ -121,7 +154,7 @@ class LinearRegression(Algo):
                     plt.colorbar(scatter, label="Y")
                     plt.show()
 
-            # # optimize loss
+            # optimize loss
             if is_plot and W_aug.shape[0] > 2:
                 print(
                     f"Can't plot Loss Function, Augmented Weight Matrix shape : {W_aug.shape[0]}"
@@ -162,8 +195,10 @@ class LogisticRegression(Algo):
     optimized during the training phase.
 
     Key Methods:
-    - train(X_train, Y_train, epochs=1, is_plot=False):
+    - train(X_train, Y_train, epochs=1, is_stochastic=False, batch_size=1, is_plot=False):
         Trains the model using the provided training data for a specified number of epochs.
+        It initializes parameters, constructs augmented matrices, and optimizes the loss function.
+        If is_stochastic is True, it uses stochastic batch picking to pick a random subset of data points for each iteration.
 
     - test(X_test, Y_test, is_plot=False):
         Evaluates the model's performance on a test dataset and returns the norm of the error
@@ -181,7 +216,7 @@ class LogisticRegression(Algo):
         self.__B: np.ndarray | None = None
 
         self.__Y_cap_func = lambda x_aug, w_aug: 1 / (1 + np.exp(-x_aug @ w_aug))
-        self.__Error_func = lambda x_aug, y, w_aug: self.__Y_cap_func(x_aug, w_aug) - y
+        self.__error_func = lambda x_aug, y, w_aug: self.__Y_cap_func(x_aug, w_aug) - y
         self.__model: Function | None = None
         return
 
@@ -213,6 +248,8 @@ class LogisticRegression(Algo):
         X_train: np.ndarray,
         Y_train: np.ndarray,
         epochs: int = 1,
+        is_stochastic: bool = False,
+        batch_size: int = 1,
         is_plot: bool = False,
     ) -> None:
         assert (
@@ -237,30 +274,66 @@ class LogisticRegression(Algo):
         # training loop
         for epoch in range(epochs):
 
-            # initialising Loss Function
-            loss = Function(
-                func=lambda bw: -1
-                / (Y_train.shape[0])
-                * np.sum(
-                    Y_train * np.log(self.__Y_cap_func(X_train_aug, bw))
-                    + (1 - Y_train) * np.log(1 - self.__Y_cap_func(X_train_aug, bw))
-                ),
-                grad_func=lambda bw: 1
-                / (Y_train.shape[0])
-                * X_train_aug.T
-                @ self.__Error_func(X_train_aug, Y_train, bw),
-                hessian_func=lambda bw: 1
-                / (Y_train.shape[0])
-                * X_train_aug.T
-                @ (
-                    (
-                        self.__Y_cap_func(X_train_aug, bw)
-                        * (1 - self.__Y_cap_func(X_train_aug, bw))
-                    ).reshape((Y_train.shape[0], 1))
-                    * X_train_aug
-                ),
-                name="cross_entropy_loss",
-            )
+            if is_stochastic:
+                assert batch_size <= X_train.shape[0], "Batch Size cannot be greater than the Nof. Data Points!"
+                X_train_aug_stc = X_train_aug[np.random.choice(X_train_aug.shape[0], batch_size, replace=False)]
+                Y_train_stc = Y_train[np.random.choice(Y_train.shape[0], batch_size, replace=False)]
+
+                # initialising Loss Function with Stochastic Batch Picking
+                loss = Function(
+                    func=lambda bw: -1
+                    / (Y_train_stc.shape[0])
+                    * np.sum(
+                        Y_train * np.log(self.__Y_cap_func(X_train_aug_stc, bw))
+                        + (1 - Y_train_stc) * np.log(1 - self.__Y_cap_func(X_train_aug_stc, bw))
+                    ),
+
+                    grad_func=lambda bw: 1
+                    / (Y_train_stc.shape[0])
+                    * X_train_aug_stc.T
+                    @ self.__error_func(X_train_aug_stc, Y_train_stc, bw),
+
+                    hessian_func=lambda bw: 1
+                    / (Y_train_stc.shape[0])
+                    * X_train_aug_stc.T
+                    @ (
+                        (
+                            self.__Y_cap_func(X_train_aug_stc, bw)
+                            * (1 - self.__Y_cap_func(X_train_aug_stc, bw))
+                        ).reshape((Y_train_stc.shape[0], 1))
+                        * X_train_aug_stc
+                    ),
+
+                    name="Loss Function: Cross Entropy",
+                )
+            else:
+                # initialising Loss Function without Stochastic Batch Picking
+                loss = Function(
+                    func=lambda bw: -1
+                    / (Y_train.shape[0])
+                    * np.sum(
+                        Y_train * np.log(self.__Y_cap_func(X_train_aug, bw))
+                        + (1 - Y_train) * np.log(1 - self.__Y_cap_func(X_train_aug, bw))
+                    ),
+
+                    grad_func=lambda bw: 1
+                    / (Y_train.shape[0])
+                    * X_train_aug.T
+                    @ self.__error_func(X_train_aug, Y_train, bw),
+
+                    hessian_func=lambda bw: 1
+                    / (Y_train.shape[0])
+                    * X_train_aug.T
+                    @ (
+                        (
+                            self.__Y_cap_func(X_train_aug, bw)
+                            * (1 - self.__Y_cap_func(X_train_aug, bw))
+                        ).reshape((Y_train.shape[0], 1))
+                        * X_train_aug
+                    ),
+                    
+                    name="Loss Function: Cross Entropy",
+                )
 
             # scatter plotting
             if is_plot:
@@ -277,7 +350,7 @@ class LogisticRegression(Algo):
                     plt.colorbar(scatter, label="Y")
                     plt.show()
 
-            # # optimize loss
+            # optimize loss
             if is_plot and W_aug.shape[0] > 2:
                 print(
                     f"Can't plot Loss Function, Augmented Weight Matrix shape : {W_aug.shape[0]}"
